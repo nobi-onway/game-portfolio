@@ -26,7 +26,7 @@ const Navigation = () => {
         {tags.map((tag, index) => {
           return (
             <Link
-              className="ml-5 px-2 text-xs uppercase opacity-60 hover:opacity-100"
+              className="ml-5 px-2 text-xs uppercase opacity-60 duration-500 ease-in-out hover:opacity-100"
               key={index}
               href="/"
             >

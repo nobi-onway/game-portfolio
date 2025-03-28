@@ -1,3 +1,4 @@
+import { PROJECT_GAMES } from '@/data/data';
 import FilterBar from '../common/FilterBar';
 import GameCard from './GameCard';
 
@@ -6,9 +7,15 @@ function GameCatalog() {
     <section className="m-auto mt-8 flex flex-col lg:w-[766px]">
       <FilterBar />
 
-      <div className="grid grid-cols-5 gap-4">
-        <GameCard />
-      </div>
+      <ul className="grid grid-cols-5 gap-x-4 gap-y-8">
+        {PROJECT_GAMES.map((game, index) => {
+          return (
+            <li key={index}>
+              <GameCard {...game} />
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
