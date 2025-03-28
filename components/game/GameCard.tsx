@@ -1,14 +1,14 @@
 'use client';
 import Image from 'next/image';
-import WindowsIcon from '@/public/images/windows.png';
 import IconButton from '../common/IconButton';
 import Button from '../common/Button';
 import { ProjectGameType } from '@/data/type-data';
+import { PlatformToIcon } from '@/data/data';
 
 type GameCardPropsType = {} & ProjectGameType;
 
 function GameCard(props: GameCardPropsType) {
-  const { slug, name, genres, images, mode } = props;
+  const { slug, name, genres, images, mode, platforms } = props;
 
   return (
     <section className="mb-1 flex w-full flex-col">
@@ -32,9 +32,21 @@ function GameCard(props: GameCardPropsType) {
       <div className="w-full text-[10px] opacity-60">
         <div className="float-left">{genres.join(', ')}</div>
         <div className="float-right">
-          <div className="relative size-3">
-            <Image alt="platform-icon" fill src={WindowsIcon} />
-          </div>
+          <ul className="flex items-center gap-0.5">
+            {platforms.map((platform, index) => {
+              return (
+                <li key={index}>
+                  <div className="relative size-3">
+                    <Image
+                      alt="platform-icon"
+                      fill
+                      src={PlatformToIcon[platform]}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
     </section>

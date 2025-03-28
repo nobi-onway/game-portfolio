@@ -1,42 +1,27 @@
 'use client';
-import {
-  getCodeUrl,
-  getDataUrl,
-  getFrameworkUrl,
-  getLoaderUrl,
-} from '@/lib/game-build';
+import { SlugToBuildInfo } from '@/data/data';
+import { GameMode } from '@/data/type-data';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { Unity, UnityConfig, useUnityContext } from 'react-unity-webgl';
+import { Unity, useUnityContext } from 'react-unity-webgl';
 
 type GameViewPropsType = {
   slug: string;
-  mode: 'portrait' | 'landscape';
 };
 
-const SlugToBuildInfo: Record<string, UnityConfig> = {
-  'tiny-sword': {
-    loaderUrl: getLoaderUrl('tiny-sword-web-build'),
-    dataUrl: getDataUrl('tiny-sword-web-build'),
-    frameworkUrl: getFrameworkUrl('tiny-sword-web-build'),
-    codeUrl: getCodeUrl('tiny-sword-web-build'),
-  },
-  'rocket-escape': {
-    loaderUrl: getLoaderUrl('rocket-escape-web-build'),
-    dataUrl: getDataUrl('rocket-escape-web-build'),
-    frameworkUrl: getFrameworkUrl('rocket-escape-web-build'),
-    codeUrl: getCodeUrl('rocket-escape-web-build'),
-  },
-};
-
-const viewModeClassName: Record<string, string> = {
+const viewModeClassName: Record<GameMode, string> = {
   portrait: 'aspect-[9/16] h-full',
   landscape: 'aspect-[1920/1080] w-3/4',
 };
 
 function GameView(props: GameViewPropsType) {
-  const { slug, mode } = props;
+  const { slug } = props;
   const [dips, setDips] = useState<number>(2);
   const { unityProvider, isLoaded } = useUnityContext(SlugToBuildInfo[slug]);
+
+  const mode: GameMode = useSearchParams().get('mode') as
+    | GameMode
+    | 'landscape';
 
   useEffect(() => {
     setDips(window.devicePixelRatio);
