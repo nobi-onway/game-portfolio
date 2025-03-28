@@ -12,11 +12,11 @@ async function PlayZone({
   params,
   searchParams,
 }: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ mode?: 'landscape' | 'portrait' }>;
+  params: { slug: string };
+  searchParams: { mode: 'landscape' | 'portrait' };
 }) {
-  const { slug } = await params;
-  const { mode = 'landscape' } = await searchParams;
+  const { slug } = params;
+  const { mode } = searchParams;
 
   return (
     <div className="flex h-dvh items-center justify-center">
