@@ -15,31 +15,44 @@ export const PROJECT_GAMES: ProjectGameType[] = [
   {
     name: 'Knights vs Orcs',
     slug: 'tiny-sword',
-    genres: ['Strategy War'],
+    genres: ['Strategy War', 'Tower Defend'],
     type: '2D',
     images: [
       'https://img.itch.zone/aW1nLzEwODI3OTgwLnBuZw==/original/W7Avuv.png',
+      'https://preview.redd.it/i-just-released-a-free-demo-of-tiny-swords-game-assets-link-v0-f22woqj3miz91.gif?format=png8&s=40d99b2e45aa2a89f6a5518b47c365178d512427',
     ],
     mode: 'landscape',
     platforms: ['web'],
+    brief:
+      'Defend the kingdom! Control Knights to fight, Builders to construct and gather resources, and defeat Orcs in an intense tower defense game!',
   },
   {
     name: 'Rocket Escape',
     slug: 'rocket-escape',
     genres: ['Hyper Casual'],
     type: '2D',
-    images: ['images/rocket-escape/foreground.png'],
+    images: [
+      'images/rocket-escape/foreground.png',
+      'images/rocket-escape/logo.png',
+    ],
     mode: 'portrait',
     platforms: ['web'],
+    brief:
+      'Control a rocket to escape the planet, avoid obstacles, collect fuel, and fly as far as possible!',
   },
   {
     name: 'Flappy Bird',
     slug: 'flappy-bird',
     genres: ['Hyper Casual'],
     type: '2D',
-    images: ['images/flappy-bird/foreground.png'],
+    images: [
+      'images/flappy-bird/foreground.png',
+      'images/flappy-bird/logo.png',
+    ],
     mode: 'portrait',
     platforms: ['web'],
+    brief:
+      'Control a bird to fly through pipes by tapping the screen, avoid obstacles, and achieve the highest score!',
   },
 ];
 

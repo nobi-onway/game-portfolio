@@ -1,4 +1,9 @@
-type GenreGenre = 'Hyper Casual' | 'Strategy War' | 'Action' | 'Puzzle';
+type GenreGenre =
+  | 'Hyper Casual'
+  | 'Strategy War'
+  | 'Action'
+  | 'Puzzle'
+  | 'Tower Defend';
 type Platform = 'android' | 'ios' | 'web' | 'window';
 type GameType = '2D' | '3D';
 export type GameMode = 'landscape' | 'portrait';
@@ -11,4 +16,5 @@ export type ProjectGameType = {
   type: GameType;
   mode: GameMode;
   platforms: Platform[];
+  brief: string;
 };
