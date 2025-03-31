@@ -1,5 +1,5 @@
 export async function generateStaticParams() {
-  const slugs = ['tiny-sword', 'rocket-escape', 'flappy-bird'];
+  const slugs = ['tiny-sword', 'rocket-escape', 'flappy-bird', 'tanks'];
 
   return slugs.map(slug => ({
     slug,

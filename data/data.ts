@@ -54,6 +54,20 @@ export const PROJECT_GAMES: ProjectGameType[] = [
     brief:
       'Control a bird to fly through pipes by tapping the screen, avoid obstacles, and achieve the highest score!',
   },
+  {
+    name: 'Tanks',
+    slug: 'tanks',
+    genres: ['Action'],
+    type: '3D',
+    images: [
+      'https://th.bing.com/th/id/OIP.W3dRLsxPM__kreu5fvJvgAHaD4?w=1200&h=630&rs=1&pid=ImgDetMain',
+      'https://img.itch.zone/aW1hZ2UvMTA4NDExLzUwMzIzMy5wbmc=/508x254%23mb/7l2Xou.png',
+    ],
+    mode: 'landscape',
+    platforms: ['web'],
+    brief:
+      'Control a tank, attack enemies, dodge bullets, upgrade weapons, and dominate the fierce battlefield!',
+  },
 ];
 
 export const SlugToBuildInfo: Record<string, UnityConfig> = {
@@ -74,6 +88,12 @@ export const SlugToBuildInfo: Record<string, UnityConfig> = {
     dataUrl: getDataUrl('flappy-bird-web-build'),
     frameworkUrl: getFrameworkUrl('flappy-bird-web-build'),
     codeUrl: getCodeUrl('flappy-bird-web-build'),
+  },
+  tanks: {
+    loaderUrl: getLoaderUrl('tanks-web-build'),
+    dataUrl: getDataUrl('tanks-web-build'),
+    frameworkUrl: getFrameworkUrl('tanks-web-build'),
+    codeUrl: getCodeUrl('tanks-web-build'),
   },
 };
 

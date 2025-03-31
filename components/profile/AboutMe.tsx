@@ -1,8 +1,20 @@
+import Image from 'next/image';
+
+import Academic from '@/public/images/me/academic.jpg';
+import Career from '@/public/images/me/career.png';
+
 function AboutMe() {
   return (
     <section className="mx-auto lg:w-[766px]" id="about-me">
       <div className="grid grid-cols-5 items-center justify-center">
-        <div className="col-span-2 h-60 border"></div>
+        <div className="relative col-span-2 h-60">
+          <Image
+            className="object-contain"
+            alt="about-me-img"
+            fill
+            src={Academic}
+          />
+        </div>
         <div className="col-span-3 flex w-full flex-col justify-center">
           <span className="text-center text-xs tracking-widest uppercase opacity-60">
             Fresher Game Developer
@@ -60,7 +72,14 @@ function AboutMe() {
             </ul>
           </div>
         </div>
-        <div className="col-span-2 h-60 border"></div>
+        <div className="relative col-span-2 h-60">
+          <Image
+            className="object-contain"
+            alt="about-me-img"
+            fill
+            src={Career}
+          />
+        </div>
       </div>
     </section>
   );
