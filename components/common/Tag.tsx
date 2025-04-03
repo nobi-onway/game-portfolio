@@ -21,17 +21,17 @@ const TypeToIcon: Record<
 function Tag(props: TagPropsType) {
   const { selected, type, label } = props;
 
-  const defaultClassName = 'opacity-60 border-white';
-  const selectedClassName = 'border-transparent bg-primary';
-
   const Icon = TypeToIcon[type];
 
   return (
     <div
-      className={`flex cursor-pointer items-center gap-1 rounded-full border p-2 transition-all duration-500 ease-in-out hover:opacity-100 ${selected ? selectedClassName : defaultClassName}`}
+      data-selected={selected}
+      className="data-[selected=true]:bg-primary flex cursor-pointer items-center gap-1 rounded-full border border-white p-2 opacity-60 transition-all duration-500 ease-in-out hover:opacity-100 data-[selected=true]:border-transparent data-[selected=true]:opacity-100"
     >
-      <Icon size={16} />
-      <label className="cursor-pointer text-xs">{label}</label>
+      <Icon className="size-5 lg:size-4" />
+      <label className="hidden cursor-pointer lg:block lg:text-xs">
+        {label}
+      </label>
     </div>
   );
 }

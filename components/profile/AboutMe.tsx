@@ -5,7 +5,7 @@ import Career from '@/public/images/me/career.png';
 
 function AboutMe() {
   return (
-    <section className="mx-auto lg:w-[766px]" id="about-me">
+    <section className="mx-auto px-4 lg:w-[766px] lg:px-0" id="about-me">
       <div className="grid grid-cols-5 items-center justify-center">
         <div className="relative col-span-2 h-60">
           <Image

@@ -29,7 +29,7 @@ const contacts: { href: string; src: StaticImport }[] = [
 function ContactBanner() {
   return (
     <section className="mt-12 bg-[#191a1c] lg:h-32">
-      <div className="mx-auto h-full lg:w-[766px]">
+      <div className="mx-auto flex h-full flex-col gap-8 py-4 lg:block lg:w-[766px] lg:py-0">
         <div className="float-left flex h-full flex-col items-center justify-center gap-2">
           <span className="font-bold tracking-widest uppercase">
             Let&apos;s Connect!

@@ -9,12 +9,12 @@ import AboutMe from '@/components/profile/AboutMe';
 
 export default function Home() {
   return (
-    <div className="relative text-white">
+    <div className="relative overflow-x-hidden text-white">
       <Navigation />
       <Banner />
       <AboutMe />
-      {/* <AcademicPath />
-      <CareerPath /> */}
+      {/* <AcademicPath /> */}
+      {/* <CareerPath /> */}
       <GameCatalog />
       <ContactBanner />
       <Footer />

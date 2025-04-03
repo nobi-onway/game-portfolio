@@ -21,10 +21,13 @@ function GameCatalog() {
   }
 
   return (
-    <section id="games" className="m-auto mt-8 flex flex-col lg:w-[766px]">
+    <section
+      id="games"
+      className="m-auto mt-8 flex flex-col px-4 lg:w-[766px] lg:px-0"
+    >
       <FilterBar onSelectType={handleOnSelectType} selectedType={type} />
 
-      <ul className="mt-4 grid grid-cols-5 gap-x-4 gap-y-8">
+      <ul className="mt-4 grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-5">
         {sortedGames.map((game, index) => {
           return (
             <li key={index}>

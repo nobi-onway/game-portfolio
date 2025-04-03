@@ -26,7 +26,7 @@ function FilterBar(props: FilterBarPropsType) {
   return (
     <section>
       <div className="float-left">
-        <span className="text-xl">All Games</span>
+        <span className="text-lg lg:text-xl">All Games</span>
       </div>
       <div className="float-right flex items-center gap-2">
         {types.map((t, index) => {
