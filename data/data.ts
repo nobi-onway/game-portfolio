@@ -1,4 +1,4 @@
-import { ProjectGameType } from './type-data';
+import { ProjectGameType, CareerMilestone } from './type-data';
 import {
   getCodeUrl,
   getDataUrl,
@@ -11,63 +11,125 @@ import WindowsIcon from '@/public/images/windows.png';
 import WebIcon from '@/public/images/html5.png';
 import { StaticImport } from 'next/dist/shared/lib/get-img-props';
 
+export const CAREER_PATH: CareerMilestone[] = [
+  {
+    year: '2023',
+    company: 'Rocket Studio',
+    role: 'Intern / Fresher Game Developer',
+    description: 'Started professional journey at one of the leading casual game studios in Vietnam.',
+    achievements: [
+      'Participated in developing Knights vs Orcs (100k+ downloads on Play Store)',
+      'Strongly transformed programming mindset from zero to professional',
+      'Learned to adapt to the extremely fast development pace of Hyper Casual projects'
+    ]
+  },
+  {
+    year: '2025',
+    company: 'VTC Academy',
+    role: 'Graduated Student',
+    description: 'Completed intensive Game Development training program.',
+    achievements: [
+      'Built complex projects such as FPT Zombie Shooting and 3D RPG',
+      'Mastered foundational knowledge in Computer Graphics and Game Engines',
+      'Developed independent technical problem-solving skills'
+    ]
+  },
+  {
+    year: '2025 - Present',
+    company: 'Wolffun Studio',
+    role: 'Game Developer',
+    description: 'Working in a high-expertise environment with large-scale Action PvP projects.',
+    achievements: [
+      'Joined Thetan Immortal project - Google Play Best 2025 award winner',
+      'Developed advanced in-game UI systems, API interaction, and global localization',
+      'Enhanced professional skills by solving high-polish challenges'
+    ]
+  }
+];
+
 export const PROJECT_GAMES: ProjectGameType[] = [
   {
+    name: 'Thetan Immortal',
+    slug: 'thetan-immortal',
+    genres: ['PvP Action', 'Action'],
+    type: '3D',
+    images: [
+      'https://play-lh.googleusercontent.com/BJO-__WUGVIksIVtJUdZaDIlMrgPxXKp344idlf2UD0NKb0sXDdqty22S3pgdYTHfw=w5120-h2880-rw',
+      'https://play-lh.googleusercontent.com/u3ms58vTR1rIkR35AFepou9VAYMPpCgMlzmGxwQXVA2w-ZXBPtvdjIo7OldVqGpoSQ=w1052-h592-rw'
+    ],
+    mode: 'landscape',
+    platforms: ['android', 'ios'],
+    brief: 'Large-scale Action PvP project, winning Google Play Best 2025 award.',
+    role: 'Game Developer',
+    achievements: ['Google Play Best 2025'],
+    deepInsights: {
+      challenge: 'Requires extremely high UI responsiveness in a PvP Action environment with a complex multi-language system.',
+      solution: 'Built performance-optimized UI systems, real-time API integration, and flexible localization.',
+      technicalDetails: [
+        'Advanced Ingame UI system',
+        'API Integration (Real-time data)',
+        'Global Localization System'
+      ]
+    },
+    links: {
+      store: 'https://play.google.com/store/apps/details?id=com.legendarylabs.tile.match.travel.explorer.puzzle.game.relax&hl=en'
+    }
+  },
+  {
+    name: 'Tile Travel',
+    slug: 'tile-travel',
+    genres: ['Tile Match', 'Puzzle'],
+    type: '2D',
+    images: [
+      'https://play-lh.googleusercontent.com/BGjppoJ_rYwMsMUdcQFDVqlTeIWLWlt6EkPS2aMjaVDnfiLKf6N3lP1hg413jylgTDzCQf6e3JvJhLPwnkUf=w5120-h2880',
+      'https://play-lh.googleusercontent.com/JXSlh8BmY2s-H9yOhZLUxTsmCBu78GZLujDNSNS_H-iWABE0iK0doH9xUf5tWj1epTAusj3vmFb3D8OtfVO9=w5120-h2880'
+    ],
+    mode: 'portrait',
+    platforms: ['android', 'ios'],
+    brief: 'Triple Tile Match puzzle game with increasing difficulty and eye-catching graphics.',
+    role: 'Solo Developer',
+    deepInsights: {
+      challenge: 'Architecture bloat, low performance with many tiles, and difficult-to-maintain legacy code.',
+      solution: 'Applied Clean Code, SRP principles, and intensive memory optimization techniques.',
+      technicalDetails: [
+        'Clean Code & Separation Responsibility (SRP)',
+        'Architecture Refactoring',
+        'Performance Optimization (Object Pooling, Draw call reduction)',
+        'Memory management'
+      ]
+    },
+    links: {
+      store: 'https://play.google.com/store/apps/details?id=com.wolffun.thetanimmortal&hl=en'
+    }
+  },
+  {
     name: 'Knights vs Orcs',
-    slug: 'tiny-sword',
+    slug: 'knights-vs-orcs',
     genres: ['Strategy War', 'Tower Defend'],
     type: '2D',
     images: [
-      'https://img.itch.zone/aW1nLzEwODI3OTgwLnBuZw==/original/W7Avuv.png',
       'https://preview.redd.it/i-just-released-a-free-demo-of-tiny-swords-game-assets-link-v0-f22woqj3miz91.gif?format=png8&s=40d99b2e45aa2a89f6a5518b47c365178d512427',
+      'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg'
     ],
     mode: 'landscape',
-    platforms: ['web'],
-    brief:
-      'Defend the kingdom! Control Knights to fight, Builders to construct and gather resources, and defeat Orcs in an intense tower defense game!',
+    platforms: ['android'],
+    brief: 'Strategic battle game featuring epic combat between knights and orcs.',
+    role: 'Intern / Fresher Developer',
   },
   {
-    name: 'Rocket Escape',
-    slug: 'rocket-escape',
-    genres: ['Hyper Casual'],
-    type: '2D',
-    images: [
-      'images/rocket-escape/foreground.png',
-      'images/rocket-escape/logo.png',
-    ],
-    mode: 'portrait',
-    platforms: ['web'],
-    brief:
-      'Control a rocket to escape the planet, avoid obstacles, collect fuel, and fly as far as possible!',
-  },
-  {
-    name: 'Flappy Bird',
-    slug: 'flappy-bird',
-    genres: ['Hyper Casual'],
-    type: '2D',
-    images: [
-      'images/flappy-bird/foreground.png',
-      'images/flappy-bird/logo.png',
-    ],
-    mode: 'portrait',
-    platforms: ['web'],
-    brief:
-      'Control a bird to fly through pipes by tapping the screen, avoid obstacles, and achieve the highest score!',
-  },
-  {
-    name: 'Tanks',
-    slug: 'tanks',
+    name: 'FPT Zombie Shooting',
+    slug: 'fpt-zombie-shooting',
     genres: ['Action'],
     type: '3D',
     images: [
-      'https://th.bing.com/th/id/OIP.W3dRLsxPM__kreu5fvJvgAHaD4?w=1200&h=630&rs=1&pid=ImgDetMain',
-      'https://img.itch.zone/aW1hZ2UvMTA4NDExLzUwMzIzMy5wbmc=/508x254%23mb/7l2Xou.png',
+      'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg',
+      'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg'
     ],
     mode: 'landscape',
-    platforms: ['web'],
-    brief:
-      'Control a tank, attack enemies, dodge bullets, upgrade weapons, and dominate the fierce battlefield!',
-  },
+    platforms: ['web', 'window'],
+    brief: 'Graduation project at VTC Academy, focusing on shooting mechanics and AI.',
+    role: 'Main Developer'
+  }
 ];
 
 export const SlugToBuildInfo: Record<string, UnityConfig> = {
@@ -82,19 +144,7 @@ export const SlugToBuildInfo: Record<string, UnityConfig> = {
     dataUrl: getDataUrl('rocket-escape-web-build'),
     frameworkUrl: getFrameworkUrl('rocket-escape-web-build'),
     codeUrl: getCodeUrl('rocket-escape-web-build'),
-  },
-  'flappy-bird': {
-    loaderUrl: getLoaderUrl('flappy-bird-web-build'),
-    dataUrl: getDataUrl('flappy-bird-web-build'),
-    frameworkUrl: getFrameworkUrl('flappy-bird-web-build'),
-    codeUrl: getCodeUrl('flappy-bird-web-build'),
-  },
-  tanks: {
-    loaderUrl: getLoaderUrl('tanks-web-build'),
-    dataUrl: getDataUrl('tanks-web-build'),
-    frameworkUrl: getFrameworkUrl('tanks-web-build'),
-    codeUrl: getCodeUrl('tanks-web-build'),
-  },
+  }
 };
 
 export const PlatformToIcon: Record<string, StaticImport> = {

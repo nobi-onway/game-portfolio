@@ -1,7 +1,8 @@
+'use client';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import IconButton from '../common/IconButton';
-
+import { motion } from 'framer-motion';
 import { Kanit } from 'next/font/google';
 
 const TitleFont = Kanit({
@@ -10,37 +11,69 @@ const TitleFont = Kanit({
   weight: '500',
 });
 
-const tags = ['about me', 'games'];
-// const tags = ['about me', 'academic path', 'career path', 'games'];
+const NAV_LINKS = [
+  { label: 'About Me', href: '#about-me' },
+  { label: 'Career', href: '#career-path' },
+  { label: 'Games', href: '#games' },
+];
 
 const Navigation = () => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <nav className="shadow-[rgb(0 0 0 / 25%)] fixed z-[999] h-14 w-full min-w-96 bg-[#212224] px-6 text-white shadow-2xl">
-      <div className="float-left flex h-full items-center">
+    <motion.nav
+      className={`fixed z-[999] h-14 w-full min-w-96 px-6 text-white transition-all duration-500 ${
+        scrolled
+          ? 'bg-[rgba(5,5,7,0.8)] backdrop-blur-xl border-b border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+          : 'bg-transparent'
+      }`}
+      initial={{ y: -60, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+    >
+      <div className="flex h-full items-center justify-between max-w-[1200px] mx-auto">
+        {/* Logo */}
         <Link
-          className={`${TitleFont.className} mr-4 text-xl tracking-wider uppercase`}
+          className={`${TitleFont.className} text-xl tracking-wider uppercase relative group`}
           href="/"
         >
-          Portfolio
+          <span className="text-white">Portfolio</span>
+          <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all duration-300 group-hover:w-full" />
         </Link>
 
-        {tags.map((tag, index) => {
-          return (
-            <Link
-              className="ml-5 px-2 text-xs uppercase opacity-60 duration-500 ease-in-out hover:opacity-100"
-              key={index}
-              href={'#' + tag.split(' ').join('-')}
+        {/* Nav Links */}
+        <div className="flex items-center gap-1">
+          {NAV_LINKS.map((link, index) => (
+            <motion.div
+              key={link.href}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + index * 0.08, duration: 0.4 }}
             >
-              {tag}
-            </Link>
-          );
-        })}
+              <Link
+                className="relative px-3 py-1.5 text-xs uppercase tracking-widest text-white/50 transition-colors duration-300 hover:text-white group"
+                href={link.href}
+              >
+                {link.label}
+                <span className="absolute bottom-0 left-1/2 h-px w-0 -translate-x-1/2 bg-primary transition-all duration-300 group-hover:w-4/5" />
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Tech stack badges */}
+        <div className="flex items-center gap-3">
+          <IconButton icon="react" label="React" />
+          <IconButton icon="unity" label="Unity" />
+        </div>
       </div>
-      <div className="float-right flex h-full items-center gap-4">
-        <IconButton icon="react" label="React" />
-        <IconButton icon="unity" label="Unity" />
-      </div>
-    </nav>
+    </motion.nav>
   );
 };
 

@@ -1,30 +1,199 @@
 @import 'tailwindcss';
 
 :root {
-  --foreground: #ffff;
-  --background: #151517;
-}
+  --background: #050507;
+  --foreground: #f0f0f5;
+  --primary: #0077FF;
+  --primary-glow: rgba(0, 119, 255, 0.35);
+  --secondary: #111118;
+  --accent: #0d0d12;
+  --border: #252530;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --text-muted: #7a7a90;
+  --glass-bg: rgba(15, 15, 22, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.08);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-  }
+  /* Gradient palette */
+  --gradient-hero: linear-gradient(135deg, #050507 0%, #0a0a15 100%);
+  --gradient-primary: linear-gradient(135deg, #0077FF 0%, #5B21D4 100%);
+  --gradient-card: linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
 }
 
 @theme {
-  --color-primary: #07f;
+  --color-primary: var(--primary);
+  --color-bg-main: var(--background);
+  --color-fg-main: var(--foreground);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Utility classes ────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  /* Section label — small uppercase "eyebrow" text */
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+
+/* Glassmorphism card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+}
+
+/* Gradient-border card (glow edge on hover) */
+.glow-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  position: relative;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(0, 119, 255, 0.4), transparent 50%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover {
+  border-color: rgba(0, 119, 255, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(0, 119, 255, 0.1),
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 40px var(--primary-glow);
+  transform: translateY(-4px);
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+}
+
+/* Legacy neo-brutalism (kept for compatibility, simplified) */
+.neo-brutalism-card {
+  background: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  transition:
+    transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1),
+    box-shadow 0.3s ease;
+}
+
+.neo-brutalism-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 3px 3px 0px 0px var(--primary);
+}
+
+/* ─── Scrollbars ─────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+
+/* Ambient radial glow for hero/sections */
+.radial-glow {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--secondary) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    var(--secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
+}
+
+/* Subtle pulse for "active" indicators */
+@keyframes pulse-ring {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pulse-ring 2s ease-out infinite;
 }
