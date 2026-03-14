@@ -24,21 +24,12 @@ export default function Home() {
 
       <Navigation />
 
-      {/* Banner has its own cinematic feel – no extra wrapper */}
       <Banner />
 
-      <main className="space-y-20 pb-20">
-        <AnimatedSection preset="fadeUp">
-          <AboutMe />
-        </AnimatedSection>
-
-        <AnimatedSection preset="fadeUp" delay={0.05}>
-          <CareerPath />
-        </AnimatedSection>
-
-        <AnimatedSection preset="fadeUp" delay={0.05}>
-          <GameCatalog />
-        </AnimatedSection>
+      <main className="space-y-4 md:space-y-8 pb-32">
+        <AboutMe />
+        <CareerPath />
+        <GameCatalog />
       </main>
 
       <AnimatedSection preset="fadeIn">

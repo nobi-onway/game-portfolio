@@ -41,12 +41,22 @@ function GameCatalog() {
       className="mx-auto mt-20 flex flex-col px-4 lg:w-[1000px] lg:px-0"
     >
       {/* Section heading */}
-      <div className="mb-10">
-        <h2 className="section-label mb-3">Mastery</h2>
-        <h3 className="text-4xl font-bold">
-          Featured{' '}
-          <span className="text-gradient">Products</span>
-        </h3>
+      <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="section-label mb-3">Portfolio</h2>
+          <h3 className="text-4xl md:text-5xl font-black">
+            Featured <span className="text-gradient">Projects</span>
+          </h3>
+          <p className="text-[var(--text-muted)] mt-4 max-w-xl leading-relaxed">
+            A collection of games ranging from rapid prototypes to high-polish live products. 
+            <span className="text-white font-medium"> Hover over the cards </span> to explore the core mechanics of each project.
+          </p>
+        </div>
+        
+        <div className="flex items-baseline gap-2 pb-1">
+          <span className="text-4xl font-black text-primary">{PROJECT_GAMES.length}</span>
+          <span className="text-xs font-bold text-white/40 uppercase tracking-widest">Selected Works</span>
+        </div>
       </div>
 
       {/* Filter bar */}

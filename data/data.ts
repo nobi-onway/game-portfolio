@@ -24,6 +24,17 @@ export const CAREER_PATH: CareerMilestone[] = [
     ]
   },
   {
+    year: '2020 - 2024',
+    company: 'FPT University',
+    role: 'Software Engineering Student',
+    description: 'Pursuing a degree in Software Engineering with a focus on core programming and logic.',
+    achievements: [
+      'Mastered Data Structures and Algorithms',
+      'Developed foundational software engineering principles',
+      'Actively participated in campus technology clubs'
+    ]
+  },
+  {
     year: '2025',
     company: 'VTC Academy',
     role: 'Graduated Student',
@@ -126,7 +137,7 @@ export const PROJECT_GAMES: ProjectGameType[] = [
       'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg'
     ],
     mode: 'landscape',
-    platforms: ['web', 'window'],
+    platforms: ['window'],
     brief: 'Graduation project at VTC Academy, focusing on shooting mechanics and AI.',
     role: 'Main Developer'
   }
