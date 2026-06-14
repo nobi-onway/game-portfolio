@@ -24,7 +24,27 @@
       "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓\" | Select-Object -First 20; Remove-Item -Recurse -Force \"C:\\\\Repository\\\\web\\\\game-portfolio\\\\.next\" -ErrorAction SilentlyContinue)",
       "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓|Warning|warn\" | Select-Object -First 30)",
       "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓|Warning\" | Select-Object -First 30; Remove-Item -Recurse -Force \"C:\\\\Repository\\\\web\\\\game-portfolio\\\\.next\" -ErrorAction SilentlyContinue)",
-      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-Object -Last 30)"
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-Object -Last 30)",
+      "Bash(npx tsc *)",
+      "Read(//private/tmp/**)",
+      "Bash(break)",
+      "Bash(curl -s http://localhost:3002/ -o /tmp/ssr.html)",
+      "Read(//tmp/**)",
+      "Bash(python3 -)",
+      "Bash(timeout 8 curl -sI https://registry.npmjs.org/playwright-core)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(curl *)",
+      "Bash(mkdir -p /tmp/hydrcheck)",
+      "Bash(npm init *)",
+      "Bash(npm i *)",
+      "Bash(npx --yes @puppeteer/browsers install chrome@stable)",
+      "Bash(node check.js)",
+      "Bash(node check2.js)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(pkill -f \"next-server\")",
+      "Bash(rm -rf /tmp/hydrcheck /tmp/ssr.html /tmp/dev.log)",
+      "Bash([ -f \"$F\" ])",
+      "Bash(awk 'NR<=200')"
     ]
   }
 }

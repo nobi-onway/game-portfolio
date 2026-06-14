@@ -1,7 +1,7 @@
 'use client';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ExternalLink, X } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   CATEGORY_ACCENT,
   CATEGORY_LABEL,
@@ -102,6 +102,10 @@ export default function StarModal({
 }) {
   const reducedMotion = usePrefersReducedMotion();
 
+  // Horizontal reading rail — the body lays out in side-by-side panels and the
+  // mouse wheel drives the X axis so a vertical scroll reads left → right.
+  const railRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
@@ -109,6 +113,17 @@ export default function StarModal({
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
+
+  // Reset the rail to the start whenever a new star is opened.
+  useEffect(() => {
+    if (railRef.current) railRef.current.scrollLeft = 0;
+  }, [node?.id]);
+
+  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
+    const rail = railRef.current;
+    if (!rail || event.deltaY === 0) return;
+    rail.scrollLeft += event.deltaY;
+  };
 
   const accent = node ? (node.accent ?? CATEGORY_ACCENT[node.category]) : '#ffffff';
   const chart = useMiniChart(node);
@@ -159,7 +174,7 @@ export default function StarModal({
             role="dialog"
             aria-modal="true"
             aria-label={node.title}
-            className="glass-card relative w-full max-w-md overflow-hidden"
+            className="glass-card relative w-full max-w-5xl overflow-hidden"
             style={{ borderColor: `${accent}55` }}
             initial={{ opacity: 0, scale: 0.92, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -204,7 +219,16 @@ export default function StarModal({
               </button>
             </div>
 
-            <div className="relative max-h-[78vh] overflow-y-auto px-5 py-5 md:px-6">
+            {/* ── Horizontal reading rail ───────────────────────────────────
+                Panels sit side-by-side; the wheel scrolls along X so a normal
+                vertical scroll reads the entry left → right. */}
+            <div
+              ref={railRef}
+              onWheel={handleWheel}
+              className="no-scrollbar relative flex h-[62vh] max-h-[560px] overflow-x-auto overflow-y-hidden"
+            >
+              {/* ── Panel · Identity ─────────────────────────────────────── */}
+              <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto px-6 py-6">
               {/* ── Constellation chart banner ───────────────────────────── */}
               <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/40">
                 <svg viewBox="0 0 200 64" className="h-20 w-full" aria-hidden="true">
@@ -258,34 +282,6 @@ export default function StarModal({
                 </span>
               </div>
 
-              {/* ── Spectral plate (hero image) ──────────────────────────── */}
-              {node.image && (
-                <div className="relative mt-5 h-40 overflow-hidden rounded-lg border border-white/10 md:h-44">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={node.image}
-                    alt={node.title}
-                    className="size-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-                  <div
-                    className="pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
-                    style={{
-                      backgroundImage:
-                        'repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 1px, transparent 1px, transparent 3px)',
-                    }}
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-0"
-                    style={{ boxShadow: `inset 0 -40px 60px -20px ${accent}55` }}
-                  />
-                  <span className="absolute left-2 top-2 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/55">
-                    ▣ Spectral Plate
-                  </span>
-                </div>
-              )}
-
               {/* ── Identity ─────────────────────────────────────────────── */}
               <div className="mt-5 flex items-center gap-2">
                 <span
@@ -322,9 +318,43 @@ export default function StarModal({
                   <span className="text-xs font-bold text-white/85">{node.role}</span>
                 </div>
               )}
+              </div>
+              {/* ── /Panel · Identity ────────────────────────────────────── */}
 
+              {/* ── Panel · Spectral plate (hero image) ──────────────────── */}
+              {node.image && (
+                <div className="w-[300px] shrink-0 border-l border-white/10 px-6 py-6">
+                  <div className="relative h-full overflow-hidden rounded-lg border border-white/10">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={node.image}
+                      alt={node.title}
+                      className="size-full object-cover"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
+                      style={{
+                        backgroundImage:
+                          'repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 1px, transparent 1px, transparent 3px)',
+                      }}
+                    />
+                    <div
+                      className="pointer-events-none absolute inset-0"
+                      style={{ boxShadow: `inset 0 -40px 60px -20px ${accent}55` }}
+                    />
+                    <span className="absolute left-2 top-2 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/55">
+                      ▣ Spectral Plate
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Panel · Log (body + bullets) ─────────────────────────── */}
+              <div className="flex w-[380px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
               {/* ── Typed body ───────────────────────────────────────────── */}
-              <p className="mt-5 min-h-[3.5rem] text-sm leading-relaxed text-white/70">
+              <p className="min-h-[3.5rem] text-sm leading-relaxed text-white/70">
                 <span className="mr-1 font-mono" style={{ color: accent }}>
                   ›
                 </span>
@@ -352,9 +382,14 @@ export default function StarModal({
                   ))}
                 </ul>
               )}
+              </div>
+              {/* ── /Panel · Log ─────────────────────────────────────────── */}
 
+              {/* ── Panel · Details (readouts + links) ───────────────────── */}
+              {(node.meta || (node.links && node.links.length > 0)) && (
+                <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
               {node.meta && (
-                <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   {node.meta.map(item => (
                     <div
                       key={item.label}
@@ -394,12 +429,16 @@ export default function StarModal({
                   ))}
                 </div>
               )}
-
-              {(onPrev || onNext) && (
-                <p className="mt-6 border-t border-white/5 pt-4 font-mono text-[10px] font-medium uppercase tracking-wider text-white/25">
-                  ◀ ▶ / scroll · next entry in {chart.name}
-                </p>
+                </div>
               )}
+              {/* ── /Panel · Details ─────────────────────────────────────── */}
+            </div>
+            {/* ── /Horizontal reading rail ─────────────────────────────────── */}
+
+            {/* ── Footer hint ──────────────────────────────────────────────── */}
+            <div className="flex items-center justify-between border-t border-white/10 px-5 py-2.5 font-mono text-[10px] font-medium uppercase tracking-wider text-white/30">
+              <span style={{ color: `${accent}cc` }}>scroll → to read entry</span>
+              {(onPrev || onNext) && <span>◀ ▶ · {chart.name}</span>}
             </div>
           </motion.div>
         </motion.div>

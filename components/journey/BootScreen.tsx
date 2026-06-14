@@ -146,7 +146,7 @@ export default function BootScreen() {
                     onClick={enter}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="group flex items-center gap-3 rounded-full border border-primary/40 bg-primary/15 px-7 py-3.5 text-sm font-black uppercase tracking-[0.25em] text-white backdrop-blur-md transition-colors hover:bg-primary/25"
+                    className="group flex items-center gap-3 rounded-full border border-primary/40 bg-primary/15 px-7 py-3.5 font-mono text-sm font-black uppercase tracking-[0.25em] text-white backdrop-blur-md transition-colors hover:bg-primary/25"
                   >
                     <span
                       className="size-2 rounded-full bg-primary"

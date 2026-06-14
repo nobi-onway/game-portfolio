@@ -17,6 +17,12 @@ export type Zone = {
   completed: boolean;
 };
 
+// Percent string rounded to a short, stable precision. The raw geometry
+// (`radius * 2 * 100` etc.) yields long floats like `30.643316977093242`, and
+// framer-motion rounds those differently across the SSR vs hydration passes —
+// which tripped a hydration mismatch. Rounding here makes both sides identical.
+const pct = (n: number) => `${Math.round(n * 1e3) / 1e3}%`;
+
 // Smooth curve passing near each zone centroid (quadratic through midpoints).
 function smoothPath(points: { x: number; y: number }[]) {
   if (points.length < 2) return '';
@@ -51,10 +57,10 @@ export default function JourneyOverview({
             key={`aura-${zone.id}`}
             className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full blur-[64px]"
             style={{
-              left: `${zone.cx * 100}%`,
-              top: `${zone.cy * 100}%`,
-              width: `${zone.radius * 2 * 100}%`,
-              height: `${zone.radius * 2 * 100}%`,
+              left: pct(zone.cx * 100),
+              top: pct(zone.cy * 100),
+              width: pct(zone.radius * 2 * 100),
+              height: pct(zone.radius * 2 * 100),
               background: `radial-gradient(circle, ${accent}2e 0%, transparent 70%)`,
             }}
             initial={{ opacity: 0, scale: 0.6 }}
@@ -116,7 +122,7 @@ export default function JourneyOverview({
         <motion.div
           key={`label-${zone.id}`}
           className="absolute flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-center"
-          style={{ left: `${zone.cx * 100}%`, top: `${zone.cy * 100}%` }}
+          style={{ left: pct(zone.cx * 100), top: pct(zone.cy * 100) }}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 + zone.order * 0.12 }}
