@@ -7,8 +7,10 @@ import CodexView from './CodexView';
 import SocialLinks from './SocialLinks';
 import ConstellationLines from './ConstellationLines';
 import DiscoveryHUD from './DiscoveryHUD';
+import HudFrame from './HudFrame';
 import JourneyOverview, { type Zone } from './JourneyOverview';
 import { usePrefersReducedMotion } from './motion-hooks';
+import ReticleCursor from './ReticleCursor';
 import StarField from './StarField';
 import StarModal from './StarModal';
 import StarNodeView from './StarNode';
@@ -27,6 +29,7 @@ export default function ConstellationSky() {
   const [finaleDismissed, setFinaleDismissed] = useState(false);
 
   const sectionRef = useRef<HTMLElement>(null);
+  const parallaxRef = useRef<HTMLDivElement>(null);
   const inViewRef = useRef(true);
   // Persists across effect re-runs so the wheel cooldown actually holds.
   const lastWheelRef = useRef(0);
@@ -107,6 +110,9 @@ export default function ConstellationSky() {
   }, [members, positions, discovered, activeConstellationId, completedIds]);
 
   const showIntro = discovered.size === 0;
+  // Galaxy is in "immersive" mode (reticle cursor on, native cursor hidden)
+  // whenever the map is front-and-centre — i.e. no modal and not in the codex.
+  const immersiveCursor = view === 'galaxy' && activeId === null;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleSelect = useCallback(
@@ -197,6 +203,30 @@ export default function ConstellationSky() {
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
+
+  // Depth parallax — the deep background drifts opposite the cursor. Written
+  // straight to the DOM (no re-render) and skipped for reduced-motion / touch.
+  useEffect(() => {
+    if (reducedMotion) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    const node = parallaxRef.current;
+    if (!node) return;
+    let frame = 0;
+    const onMove = (event: MouseEvent) => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const x = (event.clientX / window.innerWidth - 0.5) * 2;
+        const y = (event.clientY / window.innerHeight - 0.5) * 2;
+        node.style.transform = `translate3d(${-x * 18}px, ${-y * 18}px, 0)`;
+      });
+    };
+    window.addEventListener('mousemove', onMove);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [reducedMotion]);
 
   useEffect(() => {
     const total = STAR_NODES.length;
@@ -294,25 +324,29 @@ export default function ConstellationSky() {
       id="galaxy"
       aria-label="Interactive career galaxy"
       className="relative h-full w-full overflow-hidden bg-[#04040a]"
+      style={{ cursor: immersiveCursor ? 'none' : 'auto' }}
     >
       {/* ── Scrollable canvas ──────────────────────────────────────────────
           Locked vertically; scrolls on X when the sky is wider than the
           screen (min 64rem, so the stars never cram together on mobile). */}
       <div className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden">
         <div className="relative h-full" style={{ width: 'max(100%, 64rem)' }}>
-          {/* Nebula glows */}
-          <div
-            className="radial-glow absolute left-[10%] top-[20%] h-[420px] w-[420px] opacity-[0.12]"
-            style={{ background: 'var(--primary)' }}
-          />
-          <div
-            className="radial-glow absolute bottom-[10%] right-[12%] h-[380px] w-[380px] opacity-[0.1]"
-            style={{ background: '#5B21D4' }}
-          />
+          {/* Deep background — nebula glows + star field, drifts with parallax */}
+          <div ref={parallaxRef} className="absolute inset-0 will-change-transform">
+            {/* Nebula glows */}
+            <div
+              className="radial-glow absolute left-[10%] top-[20%] h-[420px] w-[420px] opacity-[0.12]"
+              style={{ background: 'var(--primary)' }}
+            />
+            <div
+              className="radial-glow absolute bottom-[10%] right-[12%] h-[380px] w-[380px] opacity-[0.1]"
+              style={{ background: '#5B21D4' }}
+            />
 
-          {/* Background star layer (stable) */}
-          <div className="absolute inset-0">
-            <StarField reducedMotion={reducedMotion} />
+            {/* Background star layer (stable) */}
+            <div className="absolute inset-0">
+              <StarField reducedMotion={reducedMotion} />
+            </div>
           </div>
 
           {/* Constellation layer (stable) */}
@@ -352,6 +386,13 @@ export default function ConstellationSky() {
 
       {/* Vignette — pinned to the viewport, above the scrolling canvas */}
       <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.5)_100%)]" />
+
+      {/* Diegetic mission-console frame (brackets, scanlines, grain, telemetry) */}
+      <HudFrame
+        discovered={discovered.size}
+        total={STAR_NODES.length}
+        reducedMotion={reducedMotion}
+      />
 
       {/* Persistent view toggle — same spot in both Galaxy and Codex */}
       <button
@@ -481,6 +522,13 @@ export default function ConstellationSky() {
         onClose={() => setActiveId(null)}
         onPrev={() => stepModal(-1)}
         onNext={() => stepModal(1)}
+      />
+
+      {/* Custom targeting reticle — replaces the cursor while exploring */}
+      <ReticleCursor
+        active={hoveredId !== null}
+        visible={immersiveCursor}
+        reducedMotion={reducedMotion}
       />
     </section>
   );

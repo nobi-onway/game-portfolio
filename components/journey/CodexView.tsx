@@ -58,6 +58,18 @@ function StarCard({ node, discovered }: { node: StarNode; discovered: boolean })
         </p>
       )}
 
+      {node.role && (
+        <div
+          className="mt-3 flex items-center gap-2 rounded-md border-l-2 bg-white/[0.03] px-2.5 py-1.5"
+          style={{ borderColor: accent }}
+        >
+          <span className="font-mono text-[8px] font-black uppercase tracking-[0.2em] text-white/30">
+            Role
+          </span>
+          <span className="text-[11px] font-bold text-white/80">{node.role}</span>
+        </div>
+      )}
+
       <p className="mt-3 text-sm leading-relaxed text-white/65">{node.body}</p>
 
       {node.bullets && (
@@ -90,16 +102,23 @@ function StarCard({ node, discovered }: { node: StarNode; discovered: boolean })
         </div>
       )}
 
-      {node.link && (
-        <a
-          href={node.link.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex w-fit items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-bold text-black transition-transform hover:scale-105"
-          style={{ background: accent }}
-        >
-          {node.link.label} <ExternalLink className="size-3" />
-        </a>
+      {node.links && node.links.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {node.links.map((link, index) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`inline-flex w-fit items-center gap-2 rounded-full px-3.5 py-1.5 text-[11px] font-bold transition-transform hover:scale-105 ${
+                index === 0 ? 'text-black' : 'border border-white/15 bg-white/5 text-white/80'
+              }`}
+              style={index === 0 ? { background: accent } : undefined}
+            >
+              {link.label} <ExternalLink className="size-3" />
+            </a>
+          ))}
+        </div>
       )}
     </div>
   );

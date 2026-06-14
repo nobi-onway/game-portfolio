@@ -1,6 +1,6 @@
 'use client';
-import { RotateCcw, Sparkles } from 'lucide-react';
-import { CATEGORY_ACCENT, CATEGORY_LABEL, type StarCategory } from '@/data/journey-data';
+import { Download, RotateCcw, Sparkles } from 'lucide-react';
+import { CATEGORY_ACCENT, CATEGORY_LABEL, CV_HREF, type StarCategory } from '@/data/journey-data';
 import SocialLinks from './SocialLinks';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
   onReset: () => void;
 };
 
-const LEGEND: StarCategory[] = ['origin', 'education', 'studio', 'project', 'future'];
+const LEGEND: StarCategory[] = ['origin', 'education', 'studio', 'skill', 'project', 'future'];
 
 export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
   const percent = total === 0 ? 0 : Math.round((discovered / total) * 100);
@@ -39,6 +39,14 @@ export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
             />
           </div>
         </div>
+
+        <a
+          href={CV_HREF}
+          download
+          className="pointer-events-auto mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-md transition-colors hover:bg-primary/25"
+        >
+          <Download className="size-3.5" /> Download CV
+        </a>
       </div>
 
       {/* Bottom-center — gesture hints (desktop only) */}

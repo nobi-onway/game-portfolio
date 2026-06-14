@@ -5,7 +5,7 @@
 // sky so the layout scales with the viewport.
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type StarCategory = 'origin' | 'education' | 'studio' | 'project' | 'future';
+export type StarCategory = 'origin' | 'education' | 'studio' | 'skill' | 'project' | 'future';
 export type StarMagnitude = 'sun' | 'major' | 'minor';
 
 export interface StarNode {
@@ -20,10 +20,11 @@ export interface StarNode {
   image?: string; // hero shot shown in the detail modal / codex card
   title: string;
   subtitle?: string;
+  role?: string; // "what I personally did" — clarifies contribution on team/studio work
   body: string;
   bullets?: string[];
   meta?: { label: string; value: string }[];
-  link?: { label: string; href: string };
+  links?: { label: string; href: string }[]; // store / trailer / repo — see the real thing
 }
 
 export interface Constellation {
@@ -38,6 +39,7 @@ export const CATEGORY_ACCENT: Record<StarCategory, string> = {
   origin: '#FCD34D',
   education: '#22D3EE',
   studio: '#3B9EFF',
+  skill: '#34D399',
   project: '#A78BFA',
   future: '#C084FC',
 };
@@ -46,9 +48,13 @@ export const CATEGORY_LABEL: Record<StarCategory, string> = {
   origin: 'Origin',
   education: 'Education',
   studio: 'Studio',
+  skill: 'Arsenal',
   project: 'Project',
   future: 'The Horizon',
 };
+
+// Résumé / CV — drop the PDF at this path under /public.
+export const CV_HREF = '/cv/Doan-Gia-Bao-CV.pdf';
 
 // Contact channels — mirrors the old ContactBanner, surfaced inside the galaxy.
 export type SocialKind = 'facebook' | 'email' | 'github' | 'itch';
@@ -133,6 +139,7 @@ export const STAR_NODES: StarNode[] = [
     magnitude: 'major',
     title: 'Rocket Studio',
     subtitle: '2023 · Intern / Fresher Game Developer',
+    role: 'Gameplay Programmer',
     body: 'Started a professional journey at one of the leading casual game studios in Vietnam.',
     bullets: [
       'Helped develop Knights vs Orcs (100k+ downloads on Play Store)',
@@ -150,6 +157,7 @@ export const STAR_NODES: StarNode[] = [
     magnitude: 'major',
     title: 'Wolffun Studio',
     subtitle: '2025 – Present · Game Developer',
+    role: 'Game Developer — In-game UI, API & Localization',
     body: 'Working in a high-expertise environment on large-scale Action PvP projects.',
     bullets: [
       'Joined Thetan Immortal — Google Play Best 2025 winner',
@@ -172,13 +180,16 @@ export const STAR_NODES: StarNode[] = [
       'https://play-lh.googleusercontent.com/BJO-__WUGVIksIVtJUdZaDIlMrgPxXKp344idlf2UD0NKb0sXDdqty22S3pgdYTHfw=w5120-h2880-rw',
     title: 'Thetan Immortal',
     subtitle: 'PvP Action · Android / iOS',
+    role: 'Game Developer @ Wolffun',
     body: 'Large-scale Action PvP project that won the Google Play Best 2025 award.',
     bullets: ['Advanced in-game UI system', 'Real-time API integration', 'Global localization system'],
     meta: [{ label: 'Award', value: 'Google Play Best 2025' }],
-    link: {
-      label: 'View on Google Play',
-      href: 'https://play.google.com/store/apps/details?id=com.legendarylabs.tile.match.travel.explorer.puzzle.game.relax&hl=en',
-    },
+    links: [
+      {
+        label: 'View on Google Play',
+        href: 'https://play.google.com/store/apps/details?id=com.legendarylabs.tile.match.travel.explorer.puzzle.game.relax&hl=en',
+      },
+    ],
   },
   {
     id: 'tile-travel',
@@ -192,6 +203,7 @@ export const STAR_NODES: StarNode[] = [
       'https://play-lh.googleusercontent.com/BGjppoJ_rYwMsMUdcQFDVqlTeIWLWlt6EkPS2aMjaVDnfiLKf6N3lP1hg413jylgTDzCQf6e3JvJhLPwnkUf=w5120-h2880',
     title: 'Tile Travel',
     subtitle: 'Tile Match · Puzzle',
+    role: 'Game Developer @ Wolffun',
     body: 'A Triple Tile Match puzzle game with increasing difficulty and eye-catching graphics.',
   },
   {
@@ -206,6 +218,7 @@ export const STAR_NODES: StarNode[] = [
       'https://preview.redd.it/i-just-released-a-free-demo-of-tiny-swords-game-assets-link-v0-f22woqj3miz91.gif?format=png8&s=40d99b2e45aa2a89f6a5518b47c365178d512427',
     title: 'Knights vs Orcs',
     subtitle: 'Hyper Casual · 100k+ downloads',
+    role: 'Gameplay Programmer @ Rocket Studio',
     body: 'A hyper-casual hit reaching 100k+ downloads on the Play Store, built during the Rocket Studio era.',
   },
   {
@@ -220,6 +233,7 @@ export const STAR_NODES: StarNode[] = [
       'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg',
     title: 'FPT Zombie Shooter',
     subtitle: 'Action · Student Project',
+    role: 'Solo Developer · full ownership',
     body: 'A wave-based zombie shooter built during the VTC Academy training program.',
   },
   {
@@ -232,7 +246,96 @@ export const STAR_NODES: StarNode[] = [
     magnitude: 'minor',
     title: '3D RPG',
     subtitle: 'RPG · Student Project',
+    role: 'Solo Developer · full ownership',
     body: 'A 3D role-playing game exploring computer graphics and game engine systems.',
+  },
+
+  // ── The Arsenal (skills / tech stack) ───────────────────────────────────────
+  {
+    id: 'csharp',
+    label: 'C# / OOP',
+    category: 'skill',
+    constellationId: 'arsenal',
+    x: 0.22,
+    y: 0.2,
+    magnitude: 'major',
+    title: 'C# & Gameplay Programming',
+    subtitle: 'Core Language',
+    body: 'My primary language — clean, allocation-aware C# for gameplay systems, tooling and editor scripting in Unity.',
+    bullets: [
+      'Gameplay & systems architecture',
+      'Zero-alloc, performance-aware patterns',
+      'Custom Editor tooling',
+    ],
+  },
+  {
+    id: 'unity',
+    label: 'Unity Engine',
+    category: 'skill',
+    constellationId: 'arsenal',
+    x: 0.32,
+    y: 0.13,
+    magnitude: 'major',
+    title: 'Unity Engine',
+    subtitle: 'Primary Engine',
+    body: 'Shipped multiple titles on Unity across hyper-casual, puzzle and action PvP — from prototype to store release.',
+    bullets: [
+      'UGUI & responsive in-game UI',
+      'Addressables, DOTween, Animation',
+      'Mobile build & release pipeline',
+    ],
+  },
+  {
+    id: 'shaders',
+    label: 'Shaders / HLSL',
+    category: 'skill',
+    constellationId: 'arsenal',
+    x: 0.43,
+    y: 0.18,
+    magnitude: 'major',
+    title: 'Shaders & Graphics',
+    subtitle: 'Technical Art focus',
+    body: 'Where I am heading: authoring HLSL and Shader Graph for stylised, performant looks on mobile URP.',
+    bullets: ['HLSL & Shader Graph', 'URP rendering pipeline', 'Stylised lighting & post-processing'],
+  },
+  {
+    id: 'vfx',
+    label: 'Real-time VFX',
+    category: 'skill',
+    constellationId: 'arsenal',
+    x: 0.5,
+    y: 0.27,
+    magnitude: 'minor',
+    title: 'VFX & Real-time Effects',
+    subtitle: 'Game Feel',
+    body: 'Particle systems and shader-driven effects that make combat and UI feel responsive and juicy.',
+    bullets: ['Shuriken & VFX Graph', 'Shader-driven effects', 'Juice & game-feel polish'],
+  },
+  {
+    id: 'optimization',
+    label: 'Optimization',
+    category: 'skill',
+    constellationId: 'arsenal',
+    x: 0.37,
+    y: 0.29,
+    magnitude: 'minor',
+    title: 'Performance Optimization',
+    subtitle: 'Mobile-first',
+    body: 'Profiling and optimising for low-end mobile — draw calls, GC, memory and frame budget.',
+    bullets: ['Unity Profiler & Frame Debugger', 'Draw-call & batching control', 'Memory & GC management'],
+  },
+  {
+    id: 'tools',
+    label: 'Tools & Workflow',
+    category: 'skill',
+    constellationId: 'arsenal',
+    x: 0.55,
+    y: 0.14,
+    magnitude: 'minor',
+    title: 'Tools & Workflow',
+    subtitle: 'How I ship',
+    body: 'The day-to-day toolkit for working inside a professional studio team.',
+    bullets: ['Git & version control', 'Agile / Jira', 'API integration & localization'],
   },
 
   // ── The Horizon (future) ───────────────────────────────────────────────────
@@ -273,6 +376,19 @@ export const CONSTELLATIONS: Constellation[] = [
     tagline: 'Where I build',
     edges: [['rocket', 'wolffun']],
     hiddenQuote: 'From first commit to shipping award-winning titles.',
+  },
+  {
+    id: 'arsenal',
+    name: 'The Arsenal',
+    tagline: 'What I wield',
+    edges: [
+      ['unity', 'csharp'],
+      ['unity', 'shaders'],
+      ['shaders', 'vfx'],
+      ['csharp', 'optimization'],
+      ['shaders', 'tools'],
+    ],
+    hiddenQuote: 'Tools are only as sharp as the hands that wield them.',
   },
   {
     id: 'pantheon',
