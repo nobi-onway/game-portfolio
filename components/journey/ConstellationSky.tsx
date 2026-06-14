@@ -1,0 +1,483 @@
+'use client';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BookOpen, Orbit } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CONSTELLATIONS, STAR_NODES } from '@/data/journey-data';
+import CodexView from './CodexView';
+import SocialLinks from './SocialLinks';
+import ConstellationLines from './ConstellationLines';
+import DiscoveryHUD from './DiscoveryHUD';
+import JourneyOverview, { type Zone } from './JourneyOverview';
+import { useParallax, usePrefersReducedMotion } from './motion-hooks';
+import StarField from './StarField';
+import StarModal from './StarModal';
+import StarNodeView from './StarNode';
+
+const STORAGE_KEY = 'nobi-galaxy-discovered';
+
+export default function ConstellationSky() {
+  const reducedMotion = usePrefersReducedMotion();
+  const parallax = useParallax(14, !reducedMotion);
+
+  const [discovered, setDiscovered] = useState<Set<string>>(new Set());
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [view, setView] = useState<'galaxy' | 'codex'>('galaxy');
+  const [toast, setToast] = useState<{ name: string; quote: string } | null>(null);
+  const [finaleDismissed, setFinaleDismissed] = useState(false);
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const inViewRef = useRef(true);
+
+  // ── Derived lookups ────────────────────────────────────────────────────────
+  const positions = useMemo(() => {
+    const map: Record<string, { x: number; y: number }> = {};
+    for (const node of STAR_NODES) map[node.id] = { x: node.x, y: node.y };
+    return map;
+  }, []);
+
+  const members = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const constellation of CONSTELLATIONS) {
+      map[constellation.id] = STAR_NODES.filter(
+        node => node.constellationId === constellation.id,
+      ).map(node => node.id);
+    }
+    return map;
+  }, []);
+
+  // ── Persistence ────────────────────────────────────────────────────────────
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) setDiscovered(new Set(JSON.parse(raw) as string[]));
+    } catch {
+      // ignore unavailable / malformed storage
+    }
+  }, []);
+
+  // ── State derived from data ────────────────────────────────────────────────
+  // The highlighted star = whatever the mouse is over, else the keyboard cursor.
+  const highlightId = hoveredId ?? focusedId;
+  const highlightNode = STAR_NODES.find(node => node.id === highlightId) ?? null;
+  const activeNode = STAR_NODES.find(node => node.id === activeId) ?? null;
+  const activeConstellationId = highlightNode?.constellationId ?? null;
+
+  const completedIds = useMemo(() => {
+    return new Set(
+      CONSTELLATIONS.filter(
+        constellation =>
+          members[constellation.id].length > 0 &&
+          members[constellation.id].every(id => discovered.has(id)),
+      ).map(constellation => constellation.id),
+    );
+  }, [discovered, members]);
+
+  const allExplored = discovered.size === STAR_NODES.length;
+
+  const zones = useMemo<Zone[]>(() => {
+    return CONSTELLATIONS.map((constellation, index) => {
+      const ids = members[constellation.id];
+      const points = ids.map(id => positions[id]);
+      const cx = points.reduce((sum, point) => sum + point.x, 0) / points.length;
+      const cy = points.reduce((sum, point) => sum + point.y, 0) / points.length;
+      const spread = Math.max(
+        0.06,
+        ...points.map(point => Math.hypot(point.x - cx, point.y - cy)),
+      );
+      const category =
+        STAR_NODES.find(node => node.id === ids[0])?.category ?? 'origin';
+      return {
+        id: constellation.id,
+        name: constellation.name,
+        tagline: constellation.tagline,
+        order: index + 1,
+        category,
+        cx,
+        cy,
+        radius: spread + 0.07,
+        total: ids.length,
+        found: ids.filter(id => discovered.has(id)).length,
+        active: activeConstellationId === constellation.id,
+        completed: completedIds.has(constellation.id),
+      };
+    });
+  }, [members, positions, discovered, activeConstellationId, completedIds]);
+
+  const showIntro = discovered.size === 0;
+
+  // ── Handlers ───────────────────────────────────────────────────────────────
+  const handleSelect = useCallback(
+    (id: string) => {
+      setActiveId(id);
+      if (discovered.has(id)) return;
+
+      const next = new Set(discovered);
+      next.add(id);
+      setDiscovered(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
+      } catch {
+        // ignore unavailable storage
+      }
+
+      const node = STAR_NODES.find(item => item.id === id);
+      const constellation = CONSTELLATIONS.find(item => item.id === node?.constellationId);
+      if (
+        constellation?.hiddenQuote &&
+        members[constellation.id].every(memberId => next.has(memberId))
+      ) {
+        setToast({ name: constellation.name, quote: constellation.hiddenQuote });
+      }
+    },
+    [discovered, members],
+  );
+
+  const handleReset = useCallback(() => {
+    setDiscovered(new Set());
+    setFinaleDismissed(false);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore unavailable storage
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4500);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  const toggleView = useCallback(() => {
+    setView(current => (current === 'galaxy' ? 'codex' : 'galaxy'));
+  }, []);
+
+  // Move the keyboard cursor — only highlights a star (like hover), no modal.
+  const moveFocus = useCallback((direction: 1 | -1) => {
+    setFocusedId(current => {
+      const currentIndex = STAR_NODES.findIndex(node => node.id === current);
+      const base = currentIndex === -1 ? (direction === 1 ? -1 : 0) : currentIndex;
+      const nextIndex = (base + direction + STAR_NODES.length) % STAR_NODES.length;
+      return STAR_NODES[nextIndex].id;
+    });
+  }, []);
+
+  // Carousel between stars while a modal is open (opens the next one).
+  const stepModal = useCallback(
+    (direction: 1 | -1) => {
+      const currentIndex = STAR_NODES.findIndex(node => node.id === activeId);
+      const base = currentIndex === -1 ? (direction === 1 ? -1 : 0) : currentIndex;
+      const nextIndex = (base + direction + STAR_NODES.length) % STAR_NODES.length;
+      handleSelect(STAR_NODES[nextIndex].id);
+      setFocusedId(STAR_NODES[nextIndex].id);
+    },
+    [activeId, handleSelect],
+  );
+
+  // ── Gesture system ─────────────────────────────────────────────────────────
+  // Track whether the galaxy is the dominant view so global keys/wheel only
+  // act while the user is actually looking at it.
+  useEffect(() => {
+    const element = sectionRef.current;
+    if (!element) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = entry.intersectionRatio > 0.4;
+      },
+      { threshold: [0, 0.4, 1] },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    let lastWheel = 0;
+    const total = STAR_NODES.length;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (!inViewRef.current) return;
+
+      // Tab — switch between Galaxy and Codex
+      if (event.key === 'Tab') {
+        const target = event.target as HTMLElement | null;
+        const interactive = target?.closest('a, button, input, textarea, select');
+        // In Codex keep native tabbing for links; only hijack from "empty" focus.
+        if (view === 'galaxy' || !interactive) {
+          event.preventDefault();
+          toggleView();
+        }
+        return;
+      }
+
+      if (view !== 'galaxy') return;
+
+      // Modal open → arrows flip between cards.
+      if (activeId !== null) {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          stepModal(1);
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          stepModal(-1);
+        }
+        return;
+      }
+
+      // Browsing the map → arrows only move the highlight; Enter opens it.
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        moveFocus(1);
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        moveFocus(-1);
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        if (focusedId) {
+          event.preventDefault();
+          handleSelect(focusedId);
+        }
+      } else if (event.key === 'Escape') {
+        setFocusedId(null);
+      }
+    };
+
+    const onWheel = (event: WheelEvent) => {
+      if (!inViewRef.current || view !== 'galaxy') return;
+      const now = Date.now();
+
+      // Modal open → wheel flips between cards.
+      if (activeId !== null) {
+        event.preventDefault();
+        if (now - lastWheel < 320) return;
+        lastWheel = now;
+        stepModal(event.deltaY > 0 ? 1 : -1);
+        return;
+      }
+
+      // Don't trap the page until the user has started exploring.
+      if (focusedId === null) return;
+
+      const direction = event.deltaY > 0 ? 1 : -1;
+      const currentIndex = STAR_NODES.findIndex(node => node.id === focusedId);
+      const nextIndex = currentIndex + direction;
+      // Past either end → release the cursor so the page can scroll on.
+      if (nextIndex < 0 || nextIndex >= total) {
+        setFocusedId(null);
+        return;
+      }
+      event.preventDefault();
+      if (now - lastWheel < 320) return;
+      lastWheel = now;
+      setFocusedId(STAR_NODES[nextIndex].id);
+    };
+
+    window.addEventListener('keydown', onKey);
+    window.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('wheel', onWheel);
+    };
+  }, [view, activeId, focusedId, moveFocus, stepModal, handleSelect, toggleView]);
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  return (
+    <section
+      ref={sectionRef}
+      id="galaxy"
+      aria-label="Interactive career galaxy"
+      className="relative h-full w-full overflow-hidden bg-[#04040a]"
+    >
+      {/* ── Scrollable canvas ──────────────────────────────────────────────
+          Locked vertically; scrolls on X when the sky is wider than the
+          screen (min 64rem, so the stars never cram together on mobile). */}
+      <div className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden">
+        <div className="relative h-full" style={{ width: 'max(100%, 64rem)' }}>
+          {/* Nebula glows */}
+          <div
+            className="radial-glow absolute left-[10%] top-[20%] h-[420px] w-[420px] opacity-[0.12]"
+            style={{ background: 'var(--primary)' }}
+          />
+          <div
+            className="radial-glow absolute bottom-[10%] right-[12%] h-[380px] w-[380px] opacity-[0.1]"
+            style={{ background: '#5B21D4' }}
+          />
+
+          {/* Background star layer (slow parallax) */}
+          <motion.div
+            className="absolute inset-0"
+            style={{ x: parallax.x * 0.4, y: parallax.y * 0.4 }}
+          >
+            <StarField reducedMotion={reducedMotion} />
+          </motion.div>
+
+          {/* Constellation layer (full parallax) */}
+          <motion.div className="absolute inset-0" style={{ x: parallax.x, y: parallax.y }}>
+            {/* Overview: auras, journey spine & chapter watermarks (behind the stars) */}
+            <JourneyOverview zones={zones} reducedMotion={reducedMotion} />
+
+            {CONSTELLATIONS.map(constellation => (
+              <ConstellationLines
+                key={constellation.id}
+                constellation={constellation}
+                positions={positions}
+                active={activeConstellationId === constellation.id}
+                completed={completedIds.has(constellation.id)}
+                reducedMotion={reducedMotion}
+              />
+            ))}
+
+            {STAR_NODES.map(node => (
+              <StarNodeView
+                key={node.id}
+                node={node}
+                discovered={discovered.has(node.id)}
+                focused={highlightId === node.id}
+                dimmed={
+                  highlightId !== null &&
+                  highlightNode?.constellationId !== node.constellationId
+                }
+                reducedMotion={reducedMotion}
+                onHover={setHoveredId}
+                onSelect={handleSelect}
+              />
+            ))}
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Vignette — pinned to the viewport, above the scrolling canvas */}
+      <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.5)_100%)]" />
+
+      {/* Persistent view toggle — same spot in both Galaxy and Codex */}
+      <button
+        type="button"
+        onClick={toggleView}
+        className="absolute right-5 top-5 z-[45] flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-colors hover:bg-primary/20 md:right-8 md:top-8"
+      >
+        {view === 'galaxy' ? (
+          <>
+            <BookOpen className="size-4" /> Read all
+          </>
+        ) : (
+          <>
+            <Orbit className="size-4" /> Galaxy
+          </>
+        )}
+      </button>
+
+      {/* First-load framing — fades out once exploration begins */}
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div
+            className="pointer-events-none absolute inset-x-0 bottom-[14%] z-30 flex flex-col items-center px-6 text-center"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+          >
+            <p className="max-w-md text-sm leading-relaxed text-white/55 md:text-base">
+              Every star is a chapter of my story.
+            </p>
+            <div className="mt-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.25em] text-primary">
+              <motion.span
+                animate={reducedMotion ? undefined : { opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                Tap a star · or ◀ ▶ then Enter
+              </motion.span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <DiscoveryHUD
+        discovered={discovered.size}
+        total={STAR_NODES.length}
+        onReset={handleReset}
+      />
+
+      {/* Constellation-completed toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className="pointer-events-none absolute inset-x-0 bottom-24 z-40 flex justify-center px-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <div className="glass-card max-w-sm border-amber-300/30 px-6 py-4 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-amber-300/80">
+                {toast.name} · Completed
+              </p>
+              <p className="mt-2 text-sm italic leading-relaxed text-white/80">{toast.quote}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Finale */}
+      <AnimatePresence>
+        {allExplored && !finaleDismissed && (
+          <motion.div
+            className="absolute inset-0 z-50 flex items-center justify-center p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            {!reducedMotion && (
+              <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                <div
+                  className="absolute inset-y-0 left-0 w-1/2"
+                  style={{
+                    background:
+                      'linear-gradient(90deg, transparent, rgba(0,119,255,0.25), rgba(91,33,212,0.25), transparent)',
+                    animation: 'aurora-sweep 4s ease-in-out infinite',
+                  }}
+                />
+              </div>
+            )}
+            <motion.div
+              className="glass-card relative max-w-md p-8 text-center"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+            >
+              <p className="section-label">Galaxy Complete</p>
+              <h3 className="mt-3 text-3xl font-black">
+                Let&apos;s build the <span className="text-gradient">next big thing</span>
+              </h3>
+              <p className="mt-4 text-sm leading-relaxed text-white/60">
+                Thanks for wandering through my journey. I&apos;m open to collaborations, game
+                development internships, and full-time opportunities.
+              </p>
+              <div className="mt-6 flex justify-center">
+                <SocialLinks size="lg" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setFinaleDismissed(true)}
+                className="mt-6 rounded-full border border-white/10 px-5 py-2.5 text-sm font-bold text-white/60 transition-colors hover:text-white"
+              >
+                Keep exploring
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <CodexView
+        open={view === 'codex'}
+        discovered={discovered}
+        onClose={() => setView('galaxy')}
+      />
+      <StarModal
+        node={activeNode}
+        onClose={() => setActiveId(null)}
+        onPrev={() => stepModal(-1)}
+        onNext={() => stepModal(1)}
+      />
+    </section>
+  );
+}

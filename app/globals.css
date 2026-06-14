@@ -197,3 +197,30 @@ body {
   background: var(--primary);
   animation: pulse-ring 2s ease-out infinite;
 }
+
+/* ─── Galaxy / Constellation section ─────────────────────────────────────── */
+
+/* Star twinkle (opacity only — transforms reserved for hover/parallax) */
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+/* Energy pulse travelling along constellation lines */
+@keyframes energy-flow {
+  to { stroke-dashoffset: -21; }
+}
+
+/* Shooting star streak (translated within a rotated parent) */
+@keyframes shooting-star {
+  0%   { transform: translateX(-40px); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translateX(var(--dist, 260px)); opacity: 0; }
+}
+
+/* Aurora sweep for the "galaxy complete" finale */
+@keyframes aurora-sweep {
+  0%   { transform: translateX(-60%); }
+  50%  { transform: translateX(120%); }
+  100% { transform: translateX(-60%); }
+}

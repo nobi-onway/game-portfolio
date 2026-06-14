@@ -9,8 +9,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
-    "type-check": "tsc -b",
-    "prepare": "husky install"
+    "type-check": "tsc -b"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.8",
@@ -39,7 +38,6 @@
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-unicorn": "^56.0.1",
-    "husky": "^8.0.0",
     "postcss": "^8.5.3",
     "prettier": "3.5.2",
     "prettier-plugin-tailwindcss": "^0.6.9",

@@ -12,7 +12,19 @@
       "Bash(dir:*)",
       "Bash(findstr:*)",
       "Bash(find:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "PowerShell(npm run type-check)",
+      "Bash(npm --version)",
+      "PowerShell($paths = @\\(\"$env:ProgramFiles\\\\nodejs\\\\node.exe\",\"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\\\\node.exe\",\"${env:ProgramFiles\\(x86\\)}\\\\nodejs\\\\node.exe\",\"$env:USERPROFILE\\\\scoop\\\\shims\\\\node.exe\",\"$env:USERPROFILE\\\\AppData\\\\Roaming\\\\nvm\"\\); foreach \\($p in $paths\\) { if \\(Test-Path $p\\) { Write-Output \"FOUND: $p\" } }; Write-Output \"---nvm---\"; if \\(Test-Path \"$env:APPDATA\\\\nvm\"\\) { Get-ChildItem \"$env:APPDATA\\\\nvm\" -Directory | Select-Object Name })",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\typescript\\\\bin\\\\tsc\" -b 2>&1 | Select-Object -First 60)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-Object -Last 60)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-Object -Last 40)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|Error|error|✓|✗\" | Select-Object -First 25)",
+      "PowerShell(Remove-Item -Force \"C:\\\\Repository\\\\web\\\\game-portfolio\\\\components\\\\journey\\\\ListView.tsx\"; $env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓|warn|Warning\" | Select-Object -First 30)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓\" | Select-Object -First 20; Remove-Item -Recurse -Force \"C:\\\\Repository\\\\web\\\\game-portfolio\\\\.next\" -ErrorAction SilentlyContinue)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓|Warning|warn\" | Select-Object -First 30)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-String -Pattern \"Compiled|Failed|error|Error|✓|Warning\" | Select-Object -First 30; Remove-Item -Recurse -Force \"C:\\\\Repository\\\\web\\\\game-portfolio\\\\.next\" -ErrorAction SilentlyContinue)",
+      "PowerShell($env:Path = \"C:\\\\Program Files\\\\nodejs;\" + $env:Path; node \"node_modules\\\\next\\\\dist\\\\bin\\\\next\" build 2>&1 | Select-Object -Last 30)"
     ]
   }
 }
