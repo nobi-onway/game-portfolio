@@ -303,13 +303,10 @@ export default function ConstellationSky() {
             style={{ background: '#5B21D4' }}
           />
 
-          {/* Background star layer (slow parallax) */}
-          <motion.div
-            className="absolute inset-0"
-            style={{ x: parallax.x * 0.4, y: parallax.y * 0.4 }}
-          >
+          {/* Background star layer (stable) */}
+          <div className="absolute inset-0">
             <StarField reducedMotion={reducedMotion} />
-          </motion.div>
+          </div>
 
           {/* Constellation layer (full parallax) */}
           <motion.div className="absolute inset-0" style={{ x: parallax.x, y: parallax.y }}>

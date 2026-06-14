@@ -52,12 +52,12 @@ export default function ConstellationLines({
                 x2={b.x * 100}
                 y2={b.y * 100}
                 stroke={completed ? '#FDE68A' : '#A9C6FF'}
-                strokeWidth={1.4}
+                strokeWidth={0.9}
                 strokeLinecap="round"
                 strokeDasharray="3 18"
                 style={{
                   animation: 'energy-flow 1.2s linear infinite',
-                  filter: 'drop-shadow(0 0 3px currentColor)',
+                  filter: 'drop-shadow(0 0 1.5px currentColor)',
                 }}
               />
             )}
