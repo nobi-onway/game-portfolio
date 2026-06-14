@@ -28,6 +28,8 @@ export default function ConstellationSky() {
 
   const sectionRef = useRef<HTMLElement>(null);
   const inViewRef = useRef(true);
+  // Persists across effect re-runs so the wheel cooldown actually holds.
+  const lastWheelRef = useRef(0);
 
   // ── Derived lookups ────────────────────────────────────────────────────────
   const positions = useMemo(() => {
@@ -197,8 +199,8 @@ export default function ConstellationSky() {
   }, []);
 
   useEffect(() => {
-    let lastWheel = 0;
     const total = STAR_NODES.length;
+    const WHEEL_COOLDOWN = 500; // ms between star steps — keeps touchpads from racing
 
     const onKey = (event: KeyboardEvent) => {
       if (!inViewRef.current) return;
@@ -248,21 +250,32 @@ export default function ConstellationSky() {
 
     const onWheel = (event: WheelEvent) => {
       if (!inViewRef.current || view !== 'galaxy') return;
-      const now = Date.now();
 
       // Modal open → StarModal handles its own wheel, don't double-fire.
       if (activeId !== null) return;
 
-      // Don't trap the page until the user has started exploring.
-      if (focusedId === null) return;
-
+      const now = Date.now();
       const direction = event.deltaY > 0 ? 1 : -1;
+
+      // Normal mode → the first scroll enters hover mode on the first/last star.
+      if (focusedId === null) {
+        event.preventDefault();
+        if (now - lastWheelRef.current < WHEEL_COOLDOWN) return;
+        lastWheelRef.current = now;
+        setFocusedId(direction === 1 ? STAR_NODES[0].id : STAR_NODES[total - 1].id);
+        return;
+      }
+
       const currentIndex = STAR_NODES.findIndex(node => node.id === focusedId);
       const nextIndex = currentIndex + direction;
-      if (nextIndex < 0 || nextIndex >= total) return;
+      // Past either end → stop here (no more stars to move to).
+      if (nextIndex < 0 || nextIndex >= total) {
+        event.preventDefault();
+        return;
+      }
       event.preventDefault();
-      if (now - lastWheel < 10000) return;
-      lastWheel = now;
+      if (now - lastWheelRef.current < WHEEL_COOLDOWN) return;
+      lastWheelRef.current = now;
       setFocusedId(STAR_NODES[nextIndex].id);
     };
 
