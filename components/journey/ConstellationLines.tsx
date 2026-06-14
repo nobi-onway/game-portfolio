@@ -18,7 +18,7 @@ export default function ConstellationLines({
 }: Props) {
   const baseOpacity = completed ? 0.85 : active ? 0.55 : 0.16;
   const baseStroke = completed ? '#FBBF24' : '#5B8DEF';
-  const flowing = !reducedMotion && (active || completed);
+  const flowing = !reducedMotion && active;
 
   return (
     <svg
@@ -52,12 +52,12 @@ export default function ConstellationLines({
                 x2={b.x * 100}
                 y2={b.y * 100}
                 stroke={completed ? '#FDE68A' : '#A9C6FF'}
-                strokeWidth={0.9}
+                strokeWidth={0.3}
                 strokeLinecap="round"
-                strokeDasharray="3 18"
+                strokeDasharray="0.3 9"
                 style={{
-                  animation: 'energy-flow 1.2s linear infinite',
-                  filter: 'drop-shadow(0 0 1.5px currentColor)',
+                  animation: 'energy-flow 2s linear infinite',
+                  filter: 'drop-shadow(0 0 1px currentColor)',
                 }}
               />
             )}

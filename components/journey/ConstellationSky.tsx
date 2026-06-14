@@ -8,7 +8,7 @@ import SocialLinks from './SocialLinks';
 import ConstellationLines from './ConstellationLines';
 import DiscoveryHUD from './DiscoveryHUD';
 import JourneyOverview, { type Zone } from './JourneyOverview';
-import { useParallax, usePrefersReducedMotion } from './motion-hooks';
+import { usePrefersReducedMotion } from './motion-hooks';
 import StarField from './StarField';
 import StarModal from './StarModal';
 import StarNodeView from './StarNode';
@@ -17,7 +17,6 @@ const STORAGE_KEY = 'nobi-galaxy-discovered';
 
 export default function ConstellationSky() {
   const reducedMotion = usePrefersReducedMotion();
-  const parallax = useParallax(14, !reducedMotion);
 
   const [discovered, setDiscovered] = useState<Set<string>>(new Set());
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -167,11 +166,16 @@ export default function ConstellationSky() {
   // Carousel between stars while a modal is open (opens the next one).
   const stepModal = useCallback(
     (direction: 1 | -1) => {
-      const currentIndex = STAR_NODES.findIndex(node => node.id === activeId);
+      const currentNode = STAR_NODES.find(node => node.id === activeId);
+      if (!currentNode) return;
+      const siblings = STAR_NODES.filter(
+        node => node.constellationId === currentNode.constellationId,
+      );
+      const currentIndex = siblings.findIndex(node => node.id === activeId);
       const base = currentIndex === -1 ? (direction === 1 ? -1 : 0) : currentIndex;
-      const nextIndex = (base + direction + STAR_NODES.length) % STAR_NODES.length;
-      handleSelect(STAR_NODES[nextIndex].id);
-      setFocusedId(STAR_NODES[nextIndex].id);
+      const nextIndex = (base + direction + siblings.length) % siblings.length;
+      handleSelect(siblings[nextIndex].id);
+      setFocusedId(siblings[nextIndex].id);
     },
     [activeId, handleSelect],
   );
@@ -246,14 +250,8 @@ export default function ConstellationSky() {
       if (!inViewRef.current || view !== 'galaxy') return;
       const now = Date.now();
 
-      // Modal open → wheel flips between cards.
-      if (activeId !== null) {
-        event.preventDefault();
-        if (now - lastWheel < 320) return;
-        lastWheel = now;
-        stepModal(event.deltaY > 0 ? 1 : -1);
-        return;
-      }
+      // Modal open → StarModal handles its own wheel, don't double-fire.
+      if (activeId !== null) return;
 
       // Don't trap the page until the user has started exploring.
       if (focusedId === null) return;
@@ -261,13 +259,9 @@ export default function ConstellationSky() {
       const direction = event.deltaY > 0 ? 1 : -1;
       const currentIndex = STAR_NODES.findIndex(node => node.id === focusedId);
       const nextIndex = currentIndex + direction;
-      // Past either end → release the cursor so the page can scroll on.
-      if (nextIndex < 0 || nextIndex >= total) {
-        setFocusedId(null);
-        return;
-      }
+      if (nextIndex < 0 || nextIndex >= total) return;
       event.preventDefault();
-      if (now - lastWheel < 320) return;
+      if (now - lastWheel < 10000) return;
       lastWheel = now;
       setFocusedId(STAR_NODES[nextIndex].id);
     };
@@ -308,8 +302,8 @@ export default function ConstellationSky() {
             <StarField reducedMotion={reducedMotion} />
           </div>
 
-          {/* Constellation layer (full parallax) */}
-          <motion.div className="absolute inset-0" style={{ x: parallax.x, y: parallax.y }}>
+          {/* Constellation layer (stable) */}
+          <div className="absolute inset-0">
             {/* Overview: auras, journey spine & chapter watermarks (behind the stars) */}
             <JourneyOverview zones={zones} reducedMotion={reducedMotion} />
 
@@ -339,7 +333,7 @@ export default function ConstellationSky() {
                 onSelect={handleSelect}
               />
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
 

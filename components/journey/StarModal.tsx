@@ -23,6 +23,7 @@ export default function StarModal({
     return () => window.removeEventListener('keydown', handler);
   }, [onClose]);
 
+
   const accent = node ? node.accent ?? CATEGORY_ACCENT[node.category] : '#ffffff';
 
   return (
@@ -178,7 +179,7 @@ export default function StarModal({
 
               {(onPrev || onNext) && (
                 <p className="mt-6 border-t border-white/5 pt-4 text-[10px] font-medium uppercase tracking-wider text-white/25">
-                  Scroll or ◀ ▶ to explore the next star
+                  Scroll or ◀ ▶ to explore stars in this constellation
                 </p>
               )}
             </div>

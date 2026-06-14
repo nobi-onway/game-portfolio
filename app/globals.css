@@ -208,7 +208,7 @@ body {
 
 /* Energy pulse travelling along constellation lines */
 @keyframes energy-flow {
-  to { stroke-dashoffset: -21; }
+  to { stroke-dashoffset: -9.3; }
 }
 
 /* Shooting star streak (translated within a rotated parent) */
