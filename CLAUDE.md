@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow Rules
+
+- **Only modify code** — never run `npm run build`, `npm run start`, deploy, or any build/publish commands unless explicitly asked.
+- Do not auto-verify changes by launching the dev server or running the app. Code edits are sufficient.
+
 ## Quick Start
 
 **Development:**
