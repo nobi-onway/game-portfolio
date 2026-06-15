@@ -77,9 +77,9 @@ export default function HudFrame({
         <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45 backdrop-blur-md">
           <span className="text-primary">◈</span>
           <span className="text-white/70">Star Map</span>
-          <span className="text-white/15">//</span>
+          <span className="text-white/15">{'// '}</span>
           <span ref={coordRef}>RA 000° · DEC +00°</span>
-          <span className="text-white/15">//</span>
+          <span className="text-white/15">{'// '}</span>
           <span className="tabular-nums text-white/70">
             {String(discovered).padStart(2, '0')}/{String(total).padStart(2, '0')} LOGGED
           </span>

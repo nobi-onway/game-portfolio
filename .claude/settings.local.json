@@ -46,7 +46,13 @@
       "Bash([ -f \"$F\" ])",
       "Bash(awk 'NR<=200')",
       "Bash(npm run *)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(firebase deploy *)",
+      "Bash(npx firebase *)",
+      "Read(//Users/nobi/.npm/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(npm install *)",
+      "Bash(sudo npm *)"
     ]
   }
 }
