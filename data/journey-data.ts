@@ -164,14 +164,16 @@ export const STAR_NODES: StarNode[] = [
     ],
   },
 
-  // ── The Pantheon (projects) ────────────────────────────────────────────────
+  // ── The Pantheon (projects) — Cancer / Cự Giải shape ─────────────────────
+  // δ Asellus Australis — central-right hub; the two Aselli (γ δ) are the
+  // close pair, matching how Cancer's body sits at the heart of the crab.
   {
     id: 'thetan',
     label: 'Thetan Immortal',
     category: 'project',
     constellationId: 'pantheon',
-    x: 0.75,
-    y: 0.31,
+    x: 0.80,
+    y: 0.43,
     magnitude: 'major',
     accent: '#FBBF24',
     image:
@@ -194,8 +196,8 @@ export const STAR_NODES: StarNode[] = [
     label: 'Tile Travel',
     category: 'project',
     constellationId: 'pantheon',
-    x: 0.88,
-    y: 0.44,
+    x: 0.90,
+    y: 0.30,
     magnitude: 'minor',
     image:
       'https://play-lh.googleusercontent.com/BGjppoJ_rYwMsMUdcQFDVqlTeIWLWlt6EkPS2aMjaVDnfiLKf6N3lP1hg413jylgTDzCQf6e3JvJhLPwnkUf=w5120-h2880',
@@ -209,8 +211,8 @@ export const STAR_NODES: StarNode[] = [
     label: 'Knights vs Orcs',
     category: 'project',
     constellationId: 'pantheon',
-    x: 0.66,
-    y: 0.48,
+    x: 0.71,
+    y: 0.43,
     magnitude: 'minor',
     image:
       'https://preview.redd.it/i-just-released-a-free-demo-of-tiny-swords-game-assets-link-v0-f22woqj3miz91.gif?format=png8&s=40d99b2e45aa2a89f6a5518b47c365178d512427',
@@ -224,8 +226,8 @@ export const STAR_NODES: StarNode[] = [
     label: 'FPT Zombie Shooter',
     category: 'project',
     constellationId: 'pantheon',
-    x: 0.82,
-    y: 0.58,
+    x: 0.88,
+    y: 0.57,
     magnitude: 'minor',
     image:
       'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg',
@@ -239,8 +241,8 @@ export const STAR_NODES: StarNode[] = [
     label: '3D RPG',
     category: 'project',
     constellationId: 'pantheon',
-    x: 0.71,
-    y: 0.66,
+    x: 0.63,
+    y: 0.55,
     magnitude: 'minor',
     title: '3D RPG',
     subtitle: 'RPG · Student Project',
@@ -248,61 +250,152 @@ export const STAR_NODES: StarNode[] = [
     body: 'A 3D role-playing game exploring computer graphics and game engine systems.',
   },
 
-  // ── The Arsenal (skills / tech stack) ───────────────────────────────────────
+  // ── The Arsenal (Unity logo) ────────────────────────────────────────────────
+  // unity sits dead-centre; three long arms (csharp ↑, scripting ↙, rendering ↘)
+  // radiate 120° apart, and each arm tips into a sharp 45° arrowhead aiming back
+  // at the engine — the two leaves are the barbs.
+  //
+  // Coords are built in true-angle space, then x-offsets are pre-compressed
+  // (~÷1.75, the canvas width:height ratio) so the SVG's preserveAspectRatio
+  // "none" stretch resolves them to a real 120° spread with 45° arrow apexes.
+  //   center : unity
+  //   arm ↑  : csharp     → oop, optimization   (arrowhead pointing down)
+  //   arm ↙  : scripting  → mono, data          (arrowhead pointing up-right)
+  //   arm ↘  : rendering  → vfx, shaders         (arrowhead pointing up-left)
   {
-    id: 'csharp',
-    label: 'C# / OOP',
+    id: 'unity',
+    label: 'Unity Engine',
     category: 'skill',
     constellationId: 'arsenal',
-    x: 0.28,
+    // Center hub — every arm radiates from the engine.
+    x: 0.37,
     y: 0.22,
+    magnitude: 'sun',
+    title: 'Unity Engine',
+    subtitle: 'Primary Engine — the core everything orbits',
+    body: 'Shipped multiple titles on Unity across hyper-casual, puzzle and action PvP — from prototype to store release. Every other skill in this arsenal is a discipline I bring to bear inside the engine.',
+    bullets: [
+      'UGUI & responsive in-game UI',
+      'DOTween, Animation & timeline',
+      'Mobile build & release pipeline',
+    ],
+  },
+
+  // ── Core ↑ : C# language ─────────────────────────────────────────────────
+  {
+    id: 'csharp',
+    label: 'C#',
+    category: 'skill',
+    constellationId: 'arsenal',
+    // Arm tip ↑ (long seam up from the engine).
+    x: 0.37,
+    y: 0.115,
     magnitude: 'major',
     title: 'C# & Gameplay Programming',
     subtitle: 'Core Language',
     body: 'My primary language — clean, allocation-aware C# for gameplay systems, tooling and editor scripting in Unity.',
     bullets: [
       'Gameplay & systems architecture',
-      'Zero-alloc, performance-aware patterns',
+      'Modern C# (LINQ, async, generics)',
       'Custom Editor tooling',
     ],
   },
   {
-    id: 'unity',
-    label: 'Unity Engine',
+    id: 'oop',
+    label: 'OOP & Patterns',
     category: 'skill',
     constellationId: 'arsenal',
-    x: 0.33,
-    y: 0.08,
-    magnitude: 'major',
-    title: 'Unity Engine',
-    subtitle: 'Primary Engine',
-    body: 'Shipped multiple titles on Unity across hyper-casual, puzzle and action PvP — from prototype to store release.',
-    bullets: [
-      'UGUI & responsive in-game UI',
-      'Addressables, DOTween, Animation',
-      'Mobile build & release pipeline',
-    ],
+    // Barb of the ↑ arrow — upper-right.
+    x: 0.388,
+    y: 0.037,
+    magnitude: 'minor',
+    title: 'OOP & Design Patterns',
+    subtitle: 'Clean Architecture',
+    body: 'Designing maintainable gameplay systems on solid object-oriented foundations, reaching for the right pattern for the job.',
+    bullets: ['SOLID principles', 'State, Observer & Factory patterns', 'Decoupled, testable systems'],
   },
   {
-    id: 'shaders',
-    label: 'Shaders / HLSL',
+    id: 'optimization',
+    label: 'Optimization',
     category: 'skill',
     constellationId: 'arsenal',
-    x: 0.43,
-    y: 0.08,
+    // Barb of the ↑ arrow — upper-left.
+    x: 0.352,
+    y: 0.037,
+    magnitude: 'minor',
+    title: 'Performance Optimization',
+    subtitle: 'Mobile-first',
+    body: 'Profiling and optimising for low-end mobile — zero-alloc patterns, GC pressure, memory and frame budget.',
+    bullets: ['Unity Profiler & Frame Debugger', 'Zero-alloc & GC management', 'Draw-call & batching control'],
+  },
+
+  // ── Core ↙ : Engine scripting & architecture ─────────────────────────────
+  {
+    id: 'scripting',
+    label: 'Engine Scripting',
+    category: 'skill',
+    constellationId: 'arsenal',
+    // Arm tip ↙ (long seam down-left from the engine).
+    x: 0.318,
+    y: 0.273,
     magnitude: 'major',
-    title: 'Shaders & Graphics',
-    subtitle: 'Technical Art focus',
-    body: 'Where I am heading: authoring HLSL and Shader Graph for stylised, performant looks on mobile URP.',
-    bullets: ['HLSL & Shader Graph', 'URP rendering pipeline', 'Stylised lighting & post-processing'],
+    title: 'Scripting & Architecture',
+    subtitle: 'Unity Runtime Model',
+    body: "Structuring a game's runtime around Unity's component model and data-driven content for flexible, scalable systems.",
+    bullets: ['Component-driven design', 'Data-driven content', 'Event & messaging systems'],
+  },
+  {
+    id: 'mono',
+    label: 'MonoBehaviour',
+    category: 'skill',
+    constellationId: 'arsenal',
+    // Barb of the ↙ arrow — outer-left.
+    x: 0.27,
+    y: 0.284,
+    magnitude: 'minor',
+    title: 'MonoBehaviour & Lifecycle',
+    subtitle: 'Component Model',
+    body: 'Mastering the Unity execution order and component lifecycle to build predictable, frame-efficient gameplay logic.',
+    bullets: ['Update / FixedUpdate budgeting', 'Coroutines & lifecycle hooks', 'Custom component design'],
+  },
+  {
+    id: 'data',
+    label: 'ScriptableObject',
+    category: 'skill',
+    constellationId: 'arsenal',
+    // Barb of the ↙ arrow — lower.
+    x: 0.289,
+    y: 0.339,
+    magnitude: 'minor',
+    title: 'ScriptableObject & Addressables',
+    subtitle: 'Data-Driven Content',
+    body: 'Decoupling configuration and content from code with ScriptableObjects, and streaming assets on demand via Addressables.',
+    bullets: ['ScriptableObject architecture', 'Addressables & asset streaming', 'Designer-friendly tooling'],
+  },
+
+  // ── Core ↘ : Rendering & graphics ────────────────────────────────────────
+  {
+    id: 'rendering',
+    label: 'Rendering',
+    category: 'skill',
+    constellationId: 'arsenal',
+    // Arm tip ↘ (long seam down-right from the engine).
+    x: 0.422,
+    y: 0.273,
+    magnitude: 'major',
+    title: 'Rendering & Graphics',
+    subtitle: 'Visual Pipeline',
+    body: 'Driving the look of the game through the URP pipeline — from material authoring to lighting and post-processing on mobile.',
+    bullets: ['URP rendering pipeline', 'Lighting & materials', 'Mobile-friendly rendering'],
   },
   {
     id: 'vfx',
     label: 'Real-time VFX',
     category: 'skill',
     constellationId: 'arsenal',
-    x: 0.43,
-    y: 0.36,
+    // Barb of the ↘ arrow — outer-right.
+    x: 0.47,
+    y: 0.284,
     magnitude: 'minor',
     title: 'VFX & Real-time Effects',
     subtitle: 'Game Feel',
@@ -310,30 +403,18 @@ export const STAR_NODES: StarNode[] = [
     bullets: ['Shuriken & VFX Graph', 'Shader-driven effects', 'Juice & game-feel polish'],
   },
   {
-    id: 'optimization',
-    label: 'Optimization',
+    id: 'shaders',
+    label: 'Shaders / HLSL',
     category: 'skill',
     constellationId: 'arsenal',
-    x: 0.33,
-    y: 0.36,
+    // Barb of the ↘ arrow — lower.
+    x: 0.451,
+    y: 0.339,
     magnitude: 'minor',
-    title: 'Performance Optimization',
-    subtitle: 'Mobile-first',
-    body: 'Profiling and optimising for low-end mobile — draw calls, GC, memory and frame budget.',
-    bullets: ['Unity Profiler & Frame Debugger', 'Draw-call & batching control', 'Memory & GC management'],
-  },
-  {
-    id: 'tools',
-    label: 'Tools & Workflow',
-    category: 'skill',
-    constellationId: 'arsenal',
-    x: 0.48,
-    y: 0.22,
-    magnitude: 'minor',
-    title: 'Tools & Workflow',
-    subtitle: 'How I ship',
-    body: 'The day-to-day toolkit for working inside a professional studio team.',
-    bullets: ['Git & version control', 'Agile / Jira', 'API integration & localization'],
+    title: 'Shaders & Graphics',
+    subtitle: 'Technical Art focus',
+    body: 'Where I am heading: authoring HLSL and Shader Graph for stylised, performant looks on mobile URP.',
+    bullets: ['HLSL & Shader Graph', 'Stylised lighting', 'Post-processing & screen FX'],
   },
 
   // ── The Horizon (future) ───────────────────────────────────────────────────
@@ -379,17 +460,30 @@ export const CONSTELLATIONS: Constellation[] = [
     id: 'arsenal',
     name: 'The Arsenal',
     tagline: 'What I wield',
-    // Six skills traced as the Unity hexagon — a closed ring of vertices:
-    //   unity ── shaders        (top edge)
-    //   csharp ╳        ╳ tools (left / right points)
-    //   optimization ── vfx     (bottom edge)
+    // Traced as the Unity logo — a hexagonal cube with the engine at its core.
+    // 1 center (unity) → 3 cores at 120° → each core forks to 2 leaves (10 stars):
+    //   ↑  csharp    → oop, optimization   (top face)
+    //   ↙  scripting → mono, data          (lower-left face)
+    //   ↘  rendering → vfx, shaders        (lower-right face)
     edges: [
-      ['unity', 'shaders'],
-      ['shaders', 'tools'],
-      ['tools', 'vfx'],
-      ['vfx', 'optimization'],
-      ['optimization', 'csharp'],
-      ['csharp', 'unity'],
+      // Three inner seams — from the engine out to each core (the cube's "Y").
+      ['unity', 'csharp'],
+      ['unity', 'scripting'],
+      ['unity', 'rendering'],
+      // Each core forks into its two leaves.
+      ['csharp', 'oop'],
+      ['csharp', 'optimization'],
+      ['scripting', 'mono'],
+      ['scripting', 'data'],
+      ['rendering', 'vfx'],
+      ['rendering', 'shaders'],
+      // Outer hexagon silhouette — leaves linked into the cube outline.
+      ['oop', 'optimization'],
+      ['optimization', 'vfx'],
+      ['vfx', 'shaders'],
+      ['shaders', 'data'],
+      ['data', 'mono'],
+      ['mono', 'oop'],
     ],
     hiddenQuote: 'Tools are only as sharp as the hands that wield them.',
   },
@@ -397,12 +491,13 @@ export const CONSTELLATIONS: Constellation[] = [
     id: 'pantheon',
     name: 'The Pantheon',
     tagline: 'What I shipped',
+    // Cancer / Cự Giải: rpg(β)─knights(γ)─thetan(δ) horizontal spine,
+    // tile-travel(ι) forking upper-right, zombie(α) forking lower-right.
     edges: [
-      ['thetan', 'knights'],
-      ['knights', 'rpg'],
-      ['rpg', 'zombie'],
-      ['zombie', 'tile-travel'],
-      ['tile-travel', 'thetan'],
+      ['rpg', 'knights'],
+      ['knights', 'thetan'],
+      ['thetan', 'tile-travel'],
+      ['thetan', 'zombie'],
     ],
     hiddenQuote: 'Every shipped game is a star that never stops burning.',
   },
