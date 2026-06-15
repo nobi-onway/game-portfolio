@@ -17,12 +17,12 @@ export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
   return (
     <>
       {/* Top-left — heading + progress (top-right is the view toggle) */}
-      <div className="pointer-events-none absolute left-0 top-0 z-30 max-w-[70%] p-5 md:p-8">
+      <div className="pointer-events-none absolute left-0 top-0 z-30 max-w-[55%] p-5 md:p-6 lg:p-8">
         <div className="flex items-center gap-2">
           <span className="h-px w-6 bg-primary/60" />
           <span className="section-label">An interactive self-portrait</span>
         </div>
-        <h2 className="mt-2 text-2xl font-black tracking-tight md:text-3xl">
+        <h2 className="mt-2 text-lg font-black tracking-tight md:text-xl lg:text-2xl xl:text-3xl">
           A journey told as a <span className="text-gradient">galaxy</span>
         </h2>
 
@@ -49,8 +49,8 @@ export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
         </a>
       </div>
 
-      {/* Bottom-center — gesture hints (desktop only) */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-5 z-30 hidden justify-center md:flex">
+      {/* Bottom-center — gesture hints (desktop only, floated above the bottom legend bar) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-28 z-30 hidden justify-center lg:flex">
         <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white/45 backdrop-blur-md">
           <span>
             <kbd className="text-white/70">◀ ▶</kbd> / scroll · explore
@@ -67,7 +67,7 @@ export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
       </div>
 
       {/* Bottom bar — legend + reset */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-4 p-5 md:p-8">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between gap-4 p-4 md:p-5 lg:p-8">
         <div className="flex flex-wrap gap-x-4 gap-y-1.5">
           {LEGEND.map(category => (
             <div key={category} className="flex items-center gap-1.5">

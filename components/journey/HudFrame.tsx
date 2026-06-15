@@ -72,8 +72,8 @@ export default function HudFrame({
         ),
       )}
 
-      {/* Top-center telemetry strip — only where there's horizontal room */}
-      <div className="absolute inset-x-0 top-0 hidden justify-center pt-5 md:pt-7 xl:flex">
+      {/* Top-center telemetry strip — only where there's comfortable horizontal room */}
+      <div className="absolute inset-x-0 top-0 hidden justify-center pt-5 md:pt-7 2xl:flex">
         <div className="flex items-center gap-3 rounded-full border border-white/10 bg-black/40 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45 backdrop-blur-md">
           <span className="text-primary">◈</span>
           <span className="text-white/70">Star Map</span>

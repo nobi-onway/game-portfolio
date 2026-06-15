@@ -142,7 +142,7 @@ export default function StarModal({
     <AnimatePresence>
       {node && chart && (
         <motion.div
-          className="absolute inset-0 z-[60] flex items-center justify-center p-4"
+          className="absolute inset-0 z-[60] flex items-center justify-center px-14 py-4 lg:px-16"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -163,7 +163,7 @@ export default function StarModal({
               type="button"
               aria-label="Previous star"
               onClick={onPrev}
-              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-black/50 p-2 text-white/60 backdrop-blur-md transition-colors hover:text-white md:left-6"
+              className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-black/50 p-2 text-white/60 backdrop-blur-md transition-colors hover:text-white lg:left-5"
             >
               <ChevronLeft className="size-5" />
             </button>
@@ -173,7 +173,7 @@ export default function StarModal({
               type="button"
               aria-label="Next star"
               onClick={onNext}
-              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-black/50 p-2 text-white/60 backdrop-blur-md transition-colors hover:text-white md:right-6"
+              className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-black/50 p-2 text-white/60 backdrop-blur-md transition-colors hover:text-white lg:right-5"
             >
               <ChevronRight className="size-5" />
             </button>
@@ -234,7 +234,7 @@ export default function StarModal({
             <div
               ref={railRef}
               onWheel={handleWheel}
-              className="no-scrollbar relative flex h-[62vh] max-h-[560px] overflow-x-auto overflow-y-hidden"
+              className="no-scrollbar relative flex h-[58vh] max-h-[480px] overflow-x-auto overflow-y-hidden lg:h-[62vh] lg:max-h-[560px]"
             >
               {/* ── Panel · Identity ─────────────────────────────────────── */}
               <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto px-6 py-6">
