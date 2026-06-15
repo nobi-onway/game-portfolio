@@ -215,8 +215,37 @@ export const STAR_NODES: StarNode[] = [
   },
 
   // ── The Pantheon (projects) — Cancer / Cự Giải shape ─────────────────────
-  // δ Asellus Australis — central-right hub; the two Aselli (γ δ) are the
-  // close pair, matching how Cancer's body sits at the heart of the crab.
+  // ── The Pantheon (projects) ───────────────────────────────────────────────
+  {
+    id: 'zombie',
+    label: 'FPS Zombie Shooter',
+    category: 'project',
+    constellationId: 'pantheon',
+    x: 0.88,
+    y: 0.57,
+    magnitude: 'minor',
+    image:
+      'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg',
+    title: 'FPS Zombie Shooter',
+    subtitle: 'Action · Student Project',
+    role: 'Solo Developer · full ownership',
+    body: 'A wave-based zombie shooter built during the VTC Academy training program.',
+  },
+  {
+    id: 'knights',
+    label: 'Knights vs Orcs',
+    category: 'project',
+    constellationId: 'pantheon',
+    x: 0.71,
+    y: 0.43,
+    magnitude: 'minor',
+    image:
+      'https://preview.redd.it/i-just-released-a-free-demo-of-tiny-swords-game-assets-link-v0-f22woqj3miz91.gif?format=png8&s=40d99b2e45aa2a89f6a5518b47c365178d512427',
+    title: 'Knights vs Orcs',
+    subtitle: 'Hyper Casual · 100k+ downloads',
+    role: 'Gameplay Programmer @ Rocket Studio',
+    body: 'A hyper-casual hit reaching 100k+ downloads on the Play Store, built during the Rocket Studio era.',
+  },
   {
     id: 'thetan',
     label: 'Thetan Immortal',
@@ -255,36 +284,6 @@ export const STAR_NODES: StarNode[] = [
     subtitle: 'Tile Match · Puzzle',
     role: 'Game Developer @ Wolffun',
     body: 'A Triple Tile Match puzzle game with increasing difficulty and eye-catching graphics.',
-  },
-  {
-    id: 'knights',
-    label: 'Knights vs Orcs',
-    category: 'project',
-    constellationId: 'pantheon',
-    x: 0.71,
-    y: 0.43,
-    magnitude: 'minor',
-    image:
-      'https://preview.redd.it/i-just-released-a-free-demo-of-tiny-swords-game-assets-link-v0-f22woqj3miz91.gif?format=png8&s=40d99b2e45aa2a89f6a5518b47c365178d512427',
-    title: 'Knights vs Orcs',
-    subtitle: 'Hyper Casual · 100k+ downloads',
-    role: 'Gameplay Programmer @ Rocket Studio',
-    body: 'A hyper-casual hit reaching 100k+ downloads on the Play Store, built during the Rocket Studio era.',
-  },
-  {
-    id: 'zombie',
-    label: 'FPS Zombie Shooter',
-    category: 'project',
-    constellationId: 'pantheon',
-    x: 0.88,
-    y: 0.57,
-    magnitude: 'minor',
-    image:
-      'https://assetstorev1-prd-cdn.unity3d.com/key-image/02b8c50d-2dbf-43e5-a28d-2a9c9adcdc1d.jpg',
-    title: 'FPS Zombie Shooter',
-    subtitle: 'Action · Student Project',
-    role: 'Solo Developer · full ownership',
-    body: 'A wave-based zombie shooter built during the VTC Academy training program.',
   },
   {
     id: 'dave-the-diver',
@@ -543,11 +542,13 @@ export const CONSTELLATIONS: Constellation[] = [
     id: 'pantheon',
     name: 'The Pantheon',
     tagline: 'What I shipped',
+    // Cancer / Cự Giải: dave-the-diver(β)─knights(γ)─thetan(δ) horizontal spine,
+    // tile-travel(ι) forking upper-right, zombie(α) forking lower-right.
     edges: [
-      ['zombie', 'knights'],
+      ['dave-the-diver', 'knights'],
       ['knights', 'thetan'],
       ['thetan', 'tile-travel'],
-      ['tile-travel', 'dave-the-diver'],
+      ['thetan', 'zombie'],
     ],
     hiddenQuote: 'Every shipped game is a star that never stops burning.',
   },
