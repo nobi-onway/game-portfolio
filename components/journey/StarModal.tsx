@@ -101,6 +101,7 @@ export default function StarModal({
   onNext?: () => void;
 }) {
   const reducedMotion = usePrefersReducedMotion();
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   // Horizontal reading rail — the body lays out in side-by-side panels and the
   // mouse wheel drives the X axis so a vertical scroll reads left → right.
@@ -108,11 +109,14 @@ export default function StarModal({
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        if (lightboxSrc) setLightboxSrc(null);
+        else onClose();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
+  }, [onClose, lightboxSrc]);
 
   // Reset the rail to the start whenever a new star is opened.
   useEffect(() => {
@@ -128,6 +132,11 @@ export default function StarModal({
   const accent = node ? (node.accent ?? CATEGORY_ACCENT[node.category]) : '#ffffff';
   const chart = useMiniChart(node);
   const { typed, done } = useTypewriter(node?.body ?? '', node?.id, !reducedMotion);
+  const { typed: typedPassion, done: donePassion } = useTypewriter(
+    node?.personal?.passion ?? '',
+    node?.id ? `${node.id}-passion` : undefined,
+    !reducedMotion,
+  );
 
   return (
     <AnimatePresence>
@@ -318,11 +327,41 @@ export default function StarModal({
                   <span className="text-xs font-bold text-white/85">{node.role}</span>
                 </div>
               )}
+
+              {node.category === 'education' && node.image && (
+                <button
+                  type="button"
+                  onClick={() => setLightboxSrc(node.image!)}
+                  className="group relative mt-5 w-full cursor-zoom-in rounded-lg border bg-black/40 p-3 transition-colors duration-300"
+                  style={{ borderColor: `${accent}30` }}
+                >
+                  {/* Corner brackets */}
+                  {(['left-1.5 top-1.5 border-l border-t', 'right-1.5 top-1.5 border-r border-t', 'left-1.5 bottom-1.5 border-l border-b', 'right-1.5 bottom-1.5 border-r border-b'] as const).map((c, i) => (
+                    <span
+                      key={i}
+                      className={`pointer-events-none absolute size-2.5 transition-opacity duration-300 group-hover:opacity-100 opacity-50 ${c}`}
+                      style={{ borderColor: accent }}
+                    />
+                  ))}
+                  {/* Accent glow on hover */}
+                  <div
+                    className="pointer-events-none absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    style={{ boxShadow: `inset 0 0 24px -8px ${accent}33` }}
+                  />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={node.image}
+                    alt={node.title}
+                    className="relative h-36 w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                </button>
+              )}
               </div>
               {/* ── /Panel · Identity ────────────────────────────────────── */}
 
               {/* ── Panel · Spectral plate (hero image) ──────────────────── */}
-              {node.image && (
+              {node.image && node.category !== 'education' && (
                 <div className="w-[300px] shrink-0 border-l border-white/10 px-6 py-6">
                   <div className="relative h-full overflow-hidden rounded-lg border border-white/10">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -432,7 +471,13 @@ export default function StarModal({
                       ✦ Passion
                     </span>
                     <p className="text-sm font-bold italic leading-relaxed text-white/85">
-                      &ldquo;{node.personal.passion}&rdquo;
+                      &ldquo;{typedPassion}
+                      {!donePassion ? (
+                        <span
+                          className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic"
+                          style={{ background: accent }}
+                        />
+                      ) : '”'}
                     </p>
                   </div>
 
@@ -590,6 +635,49 @@ export default function StarModal({
               <span style={{ color: `${accent}cc` }}>scroll → to read entry</span>
               {(onPrev || onNext) && <span>◀ ▶ · {chart.name}</span>}
             </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* ── Lightbox ─────────────────────────────────────────────────────────── */}
+      {lightboxSrc && (
+        <motion.div
+          className="absolute inset-0 z-[80] flex items-center justify-center p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <button
+            type="button"
+            aria-label="Close image"
+            onClick={() => setLightboxSrc(null)}
+            className="absolute inset-0 cursor-zoom-out bg-black/90 backdrop-blur-md"
+          />
+          <motion.div
+            className="relative max-h-full max-w-3xl"
+            initial={{ scale: 0.92, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+          >
+            <div
+              className="overflow-hidden rounded-xl border-2 bg-black/60 p-2 shadow-2xl"
+              style={{ borderColor: `${accent}66` }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={lightboxSrc}
+                alt="Certificate"
+                className="max-h-[80vh] w-auto rounded-lg object-contain"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setLightboxSrc(null)}
+              className="absolute -right-3 -top-3 rounded-full border border-white/20 bg-black/70 p-1.5 text-white/70 backdrop-blur-md transition-colors hover:text-white"
+            >
+              <X className="size-4" />
+            </button>
           </motion.div>
         </motion.div>
       )}
