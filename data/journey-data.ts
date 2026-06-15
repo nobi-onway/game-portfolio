@@ -21,10 +21,16 @@ export interface StarNode {
   title: string;
   subtitle?: string;
   role?: string; // "what I personally did" — clarifies contribution on team/studio work
-  body: string;
+  body?: string;
   bullets?: string[];
   meta?: { label: string; value: string }[];
   links?: { label: string; href: string }[]; // store / trailer / repo — see the real thing
+  sections?: Array<{ number: string; title: string; hook: string; subtitle: string }>; // narrative sections with hook + supporting line
+  personal?: {
+    passion?: string;
+    inspirations?: { name: string; note: string }[];
+    hobbies?: string[];
+  };
 }
 
 export interface Constellation {
@@ -77,17 +83,17 @@ export const STAR_NODES: StarNode[] = [
     y: 0.46,
     magnitude: 'sun',
     title: 'Đoàn Gia Bảo',
-    subtitle: 'Game Developer · Technical Artist in the making',
-    body: 'The north star of this galaxy. A game developer focused on bridging technical implementation and visual excellence — building experiences that are not only functional, but beautiful and smooth. Guided by a simple core philosophy:',
-    bullets: [
-      'Practical & Clear — technical solutions with real, practical value for the product.',
-      'Minimalist & Responsible — clean code, transparent architecture, full ownership.',
-      'Decisive & Optimistic — never giving up on hard bugs, always ready to improve.',
-    ],
-    meta: [
-      { label: 'Experience', value: '2+ Years' },
-      { label: 'Direction', value: 'Technical Artist' },
-    ],
+    subtitle: 'Game Developer · Technical Artist in progress · Vietnam',
+    personal: {
+      passion:
+        "I don't just want to make games. I want to make games that feel like they couldn't have been made by anyone else.",
+      inspirations: [
+        { name: 'Hideo Kojima', note: 'storytelling as game design' },
+        { name: 'Journey', note: 'art over mechanic' },
+        { name: 'Celeste', note: 'polish is empathy for the player' },
+      ],
+      hobbies: ['Anime', 'Lo-fi music while coding', 'Reverse-engineering shaders I love'],
+    },
   },
 
   // ── The Forge (education) ──────────────────────────────────────────────────

@@ -86,6 +86,35 @@ function StarCard({ node, discovered }: { node: StarNode; discovered: boolean })
         </ul>
       )}
 
+      {node.sections && node.sections.length > 0 && (
+        <div className="mt-5 space-y-4 border-t border-white/5 pt-5">
+          {node.sections.map((section, index) => (
+            <div key={index}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span
+                  className="font-mono text-[8px] font-black tracking-[0.25em]"
+                  style={{ color: accent }}
+                >
+                  {section.number}
+                </span>
+                <span
+                  className="text-[9px] font-bold uppercase tracking-[0.15em]"
+                  style={{ color: accent }}
+                >
+                  {section.title}
+                </span>
+              </div>
+              <p className="text-xs font-bold leading-snug text-white/85 mb-0.5">
+                {section.hook}
+              </p>
+              <p className="text-xs leading-relaxed text-white/60">
+                {section.subtitle}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {node.meta && (
         <div className="mt-4 flex flex-wrap gap-2">
           {node.meta.map(item => (

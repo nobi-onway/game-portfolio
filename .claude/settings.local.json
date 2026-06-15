@@ -44,7 +44,8 @@
       "Bash(pkill -f \"next-server\")",
       "Bash(rm -rf /tmp/hydrcheck /tmp/ssr.html /tmp/dev.log)",
       "Bash([ -f \"$F\" ])",
-      "Bash(awk 'NR<=200')"
+      "Bash(awk 'NR<=200')",
+      "Bash(npm run *)"
     ]
   }
 }

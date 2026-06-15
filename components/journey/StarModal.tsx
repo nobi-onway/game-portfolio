@@ -352,20 +352,22 @@ export default function StarModal({
               )}
 
               {/* ── Panel · Log (body + bullets) ─────────────────────────── */}
+              {(!!node.body || !!node.bullets) && (
               <div className="flex w-[380px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-              {/* ── Typed body ───────────────────────────────────────────── */}
-              <p className="min-h-[3.5rem] text-sm leading-relaxed text-white/70">
-                <span className="mr-1 font-mono" style={{ color: accent }}>
-                  ›
-                </span>
-                {typed}
-                {!done && (
-                  <span
-                    className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse"
-                    style={{ background: accent }}
-                  />
-                )}
-              </p>
+              {node.body && (
+                <p className="min-h-[3.5rem] text-sm leading-relaxed text-white/70">
+                  <span className="mr-1 font-mono" style={{ color: accent }}>
+                    ›
+                  </span>
+                  {typed}
+                  {!done && (
+                    <span
+                      className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse"
+                      style={{ background: accent }}
+                    />
+                  )}
+                </p>
+              )}
 
               {node.bullets && (
                 <ul className="mt-5 space-y-2.5 border-t border-white/5 pt-5">
@@ -383,7 +385,117 @@ export default function StarModal({
                 </ul>
               )}
               </div>
+              )}
               {/* ── /Panel · Log ─────────────────────────────────────────── */}
+
+              {/* ── Panel · Narrative (sections for origin nodes) ──────────── */}
+              {node.sections && node.sections.length > 0 && (
+                <div className="flex w-[420px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                  <div className="space-y-7">
+                    {node.sections.map((section, index) => (
+                      <div key={index}>
+                        <div className="flex items-center gap-2.5 mb-2.5">
+                          <span
+                            className="font-mono text-[10px] font-black tracking-[0.3em]"
+                            style={{ color: accent }}
+                          >
+                            {section.number}
+                          </span>
+                          <span
+                            className="text-xs font-bold uppercase tracking-[0.2em]"
+                            style={{ color: accent }}
+                          >
+                            {section.title}
+                          </span>
+                        </div>
+                        <p className="text-sm font-bold leading-tight text-white mb-1.5">
+                          {section.hook}
+                        </p>
+                        <p className="text-xs leading-relaxed text-white/60">
+                          {section.subtitle}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* ── /Panel · Narrative ───────────────────────────────────── */}
+
+              {/* ── Panel · Personal ─────────────────────────────────────── */}
+              {node.personal && (
+                <div className="flex w-[380px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                  {node.personal.passion && (
+                    <div className="mb-7">
+                      <div className="mb-3 flex items-center gap-2">
+                        <span
+                          className="font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                          style={{ color: accent }}
+                        >
+                          ✦ Passion
+                        </span>
+                      </div>
+                      <p className="text-sm font-bold italic leading-relaxed text-white/85">
+                        &ldquo;{node.personal.passion}&rdquo;
+                      </p>
+                    </div>
+                  )}
+
+                  {node.personal.inspirations && node.personal.inspirations.length > 0 && (
+                    <div className="mb-7">
+                      <div className="mb-3 flex items-center gap-2">
+                        <span
+                          className="font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                          style={{ color: accent }}
+                        >
+                          ✦ Inspirations
+                        </span>
+                      </div>
+                      <ul className="space-y-3">
+                        {node.personal.inspirations.map((item, i) => (
+                          <li key={i} className="flex items-start gap-3">
+                            <span
+                              className="mt-px font-mono text-[10px] font-black tabular-nums"
+                              style={{ color: accent }}
+                            >
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
+                            <span className="text-xs leading-relaxed text-white/70">
+                              <span className="font-bold text-white/90">{item.name}</span>
+                              {' — '}
+                              {item.note}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {node.personal.hobbies && node.personal.hobbies.length > 0 && (
+                    <div>
+                      <div className="mb-3 flex items-center gap-2">
+                        <span
+                          className="font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                          style={{ color: accent }}
+                        >
+                          ✦ Off-duty
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {node.personal.hobbies.map((hobby, i) => (
+                          <span
+                            key={i}
+                            className="rounded-full border px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white/60"
+                            style={{ borderColor: `${accent}44` }}
+                          >
+                            {hobby}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* ── /Panel · Personal ────────────────────────────────────── */}
 
               {/* ── Panel · Details (readouts + links) ───────────────────── */}
               {(node.meta || (node.links && node.links.length > 0)) && (
