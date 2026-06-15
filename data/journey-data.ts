@@ -28,7 +28,9 @@ export interface StarNode {
   sections?: Array<{ number: string; title: string; hook: string; subtitle: string }>; // narrative sections with hook + supporting line
   personal?: {
     passion?: string;
-    inspirations?: { name: string; note: string }[];
+    mindset?: string[];
+    direction?: string[];
+    inspirations?: { name: string; note: string; link?: string }[];
     hobbies?: string[];
   };
 }
@@ -87,10 +89,37 @@ export const STAR_NODES: StarNode[] = [
     personal: {
       passion:
         "I don't just want to make games. I want to make games that feel like they couldn't have been made by anyone else.",
+      mindset: [
+        'Realism to solve problems.',
+        'Minimalism to optimize performance.',
+        'Decisiveness to achieve the best quality.',
+      ],
+      direction: [
+        'Master the rendering pipeline end-to-end.',
+        'Write shaders that make games feel alive.',
+        'Bridge the gap between programmer and artist.',
+      ],
       inspirations: [
-        { name: 'Hideo Kojima', note: 'storytelling as game design' },
-        { name: 'Journey', note: 'art over mechanic' },
-        { name: 'Celeste', note: 'polish is empathy for the player' },
+        {
+          name: 'Night Shippers',
+          note: 'Proved Vietnamese indie can have heart and polish.',
+          link: 'https://store.steampowered.com/app/3761880/Night_Shippers/',
+        },
+        {
+          name: 'The Scourge: Tai Ương',
+          note: 'A bold soullike vision from the same soil I stand on.',
+          link: 'https://store.steampowered.com/app/2456350/The_Scourge__Tai_ng/',
+        },
+        {
+          name: 'Black Myth: Wukong',
+          note: 'Showed Asia what AAA craftsmanship looks like in our hands.',
+          link: 'https://store.steampowered.com/app/2358720/Black_Myth_Wukong/',
+        },
+        {
+          name: 'Hollow Knight',
+          note: 'Every pixel earns its place. The standard for atmosphere.',
+          link: 'https://store.steampowered.com/app/367520/Hollow_Knight/',
+        },
       ],
       hobbies: ['Anime', 'Lo-fi music while coding', 'Reverse-engineering shaders I love'],
     },

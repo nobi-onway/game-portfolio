@@ -421,81 +421,119 @@ export default function StarModal({
               )}
               {/* ── /Panel · Narrative ───────────────────────────────────── */}
 
-              {/* ── Panel · Personal ─────────────────────────────────────── */}
-              {node.personal && (
-                <div className="flex w-[380px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-                  {node.personal.passion && (
-                    <div className="mb-7">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span
-                          className="font-mono text-[10px] font-black uppercase tracking-[0.3em]"
-                          style={{ color: accent }}
-                        >
-                          ✦ Passion
-                        </span>
-                      </div>
-                      <p className="text-sm font-bold italic leading-relaxed text-white/85">
-                        &ldquo;{node.personal.passion}&rdquo;
-                      </p>
-                    </div>
-                  )}
+              {/* ── Panel · Personal (Passion + Mindset) ────────────────── */}
+              {node.personal?.passion && (
+                <div className="flex w-[380px] shrink-0 flex-col gap-7 overflow-y-auto border-l border-white/10 px-6 py-6">
+                  <div>
+                    <span
+                      className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                      style={{ color: accent }}
+                    >
+                      ✦ Passion
+                    </span>
+                    <p className="text-sm font-bold italic leading-relaxed text-white/85">
+                      &ldquo;{node.personal.passion}&rdquo;
+                    </p>
+                  </div>
 
-                  {node.personal.inspirations && node.personal.inspirations.length > 0 && (
-                    <div className="mb-7">
-                      <div className="mb-3 flex items-center gap-2">
-                        <span
-                          className="font-mono text-[10px] font-black uppercase tracking-[0.3em]"
-                          style={{ color: accent }}
-                        >
-                          ✦ Inspirations
-                        </span>
-                      </div>
-                      <ul className="space-y-3">
-                        {node.personal.inspirations.map((item, i) => (
-                          <li key={i} className="flex items-start gap-3">
+                  {node.personal.mindset && node.personal.mindset.length > 0 && (
+                    <div>
+                      <span
+                        className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                        style={{ color: accent }}
+                      >
+                        ✦ Mindset
+                      </span>
+                      <ul className="space-y-2">
+                        {node.personal.mindset.map((line, i) => (
+                          <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
                             <span
-                              className="mt-px font-mono text-[10px] font-black tabular-nums"
+                              className="shrink-0 font-mono text-[10px] font-black tabular-nums"
                               style={{ color: accent }}
                             >
                               {String(i + 1).padStart(2, '0')}
                             </span>
-                            <span className="text-xs leading-relaxed text-white/70">
-                              <span className="font-bold text-white/90">{item.name}</span>
-                              {' — '}
-                              {item.note}
-                            </span>
+                            <span className="leading-relaxed">{line}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
                   )}
 
-                  {node.personal.hobbies && node.personal.hobbies.length > 0 && (
+                  {node.personal.direction && node.personal.direction.length > 0 && (
                     <div>
-                      <div className="mb-3 flex items-center gap-2">
-                        <span
-                          className="font-mono text-[10px] font-black uppercase tracking-[0.3em]"
-                          style={{ color: accent }}
-                        >
-                          ✦ Off-duty
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {node.personal.hobbies.map((hobby, i) => (
-                          <span
-                            key={i}
-                            className="rounded-full border px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white/60"
-                            style={{ borderColor: `${accent}44` }}
-                          >
-                            {hobby}
-                          </span>
+                      <span
+                        className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                        style={{ color: accent }}
+                      >
+                        ✦ Direction
+                      </span>
+                      <ul className="space-y-2">
+                        {node.personal.direction.map((line, i) => (
+                          <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
+                            <span
+                              className="shrink-0 font-mono text-[10px] font-black tabular-nums"
+                              style={{ color: accent }}
+                            >
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
+                            <span className="leading-relaxed">{line}</span>
+                          </li>
                         ))}
-                      </div>
+                      </ul>
                     </div>
                   )}
                 </div>
               )}
               {/* ── /Panel · Personal ────────────────────────────────────── */}
+
+              {/* ── Panel · Inspirations ─────────────────────────────────── */}
+              {node.personal?.inspirations && node.personal.inspirations.length > 0 && (
+                <div className="flex w-[360px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                  <span
+                    className="mb-4 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                    style={{ color: accent }}
+                  >
+                    ✦ Inspirations
+                  </span>
+                  <div className="flex flex-col gap-2.5">
+                    {node.personal.inspirations.map((item, i) => {
+                      const Tag = item.link ? 'a' : 'div';
+                      const linkProps = item.link
+                        ? { href: item.link, target: '_blank', rel: 'noopener noreferrer' }
+                        : {};
+                      return (
+                        <Tag
+                          key={i}
+                          {...linkProps}
+                          className={`group relative overflow-hidden rounded-lg border bg-white/[0.02] px-3 py-2.5 transition-all hover:bg-white/[0.05] ${item.link ? 'cursor-pointer' : ''}`}
+                          style={{ borderColor: `${accent}33` }}
+                        >
+                          <div
+                            className="pointer-events-none absolute -top-8 -right-8 size-16 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-40"
+                            style={{ background: accent }}
+                          />
+                          <div className="relative flex items-center gap-3">
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="size-3.5 shrink-0 fill-current transition-colors group-hover:opacity-100"
+                              style={{ color: item.link ? accent : 'rgba(255,255,255,0.2)' }}
+                              aria-hidden="true"
+                            >
+                              <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.029 4.524 4.524s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.606 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.497 1.009 2.455-.397.957-1.497 1.41-2.455 1.012zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.663 0-3.015 1.353-3.015 3.015s1.352 3.015 3.015 3.015c1.662 0 3.015-1.353 3.015-3.015zm-5.273.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z" />
+                            </svg>
+                            <div className="min-w-0 flex-1">
+                              <h4 className="truncate text-xs font-bold text-white/90">{item.name}</h4>
+                              <p className="mt-0.5 text-[11px] leading-relaxed text-white/50">{item.note}</p>
+                            </div>
+                          </div>
+                        </Tag>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {/* ── /Panel · Inspirations ────────────────────────────────── */}
 
               {/* ── Panel · Details (readouts + links) ───────────────────── */}
               {(node.meta || (node.links && node.links.length > 0)) && (
