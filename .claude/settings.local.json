@@ -52,7 +52,9 @@
       "Read(//Users/nobi/.npm/bin/**)",
       "Read(//usr/local/bin/**)",
       "Bash(npm install *)",
-      "Bash(sudo npm *)"
+      "Bash(sudo npm *)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(node *)"
     ]
   }
 }

@@ -1,8 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // The Constellation — data for the interactive "galaxy" section.
 // Each StarNode is one abstracted fact from the portfolio (mirrors the facts in
-// CAREER_PATH / PROJECT_GAMES / AboutMe). Positions are normalised 0..1 of the
-// sky so the layout scales with the viewport.
+// CAREER_PATH / PROJECT_GAMES / AboutMe).
+//
+// Positions are normalised 0..1 of the sky. Authoring stays "shape-first": each
+// star is placed relative to its own constellation, and `applyConstellationLayout`
+// (bottom of file) then drops every constellation into an evenly-spaced horizontal
+// band so the chapters never crowd. The sky canvas is wider than the screen and
+// scrolls on X — see SKY_WIDTH_REM / ConstellationSky.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type StarCategory = 'origin' | 'education' | 'studio' | 'skill' | 'project' | 'future';
@@ -24,7 +29,7 @@ export interface StarNode {
   body?: string;
   bullets?: string[];
   meta?: { label: string; value: string }[];
-  links?: { label: string; href: string }[]; // store / trailer / repo — see the real thing
+  links?: { label: string; href: string; icon?: string }[]; // store / trailer / repo — see the real thing (icon: optional logo URL)
   sections?: Array<{ number: string; title: string; hook: string; subtitle: string }>; // narrative sections with hook + supporting line
   personal?: {
     passion?: string;
@@ -32,6 +37,8 @@ export interface StarNode {
     direction?: string[];
     inspirations?: { name: string; note: string; link?: string }[];
     hobbies?: string[];
+    // Per-node overrides for the three block headers (defaults: Passion / Mindset / Direction).
+    labels?: { passion?: string; mindset?: string; direction?: string };
   };
 }
 
@@ -74,7 +81,7 @@ export const SOCIALS: { kind: SocialKind; label: string; href: string }[] = [
   { kind: 'itch', label: 'Itch.io', href: 'https://nobi-onway.itch.io/' },
 ];
 
-export const STAR_NODES: StarNode[] = [
+const RAW_STAR_NODES: StarNode[] = [
   // ── Origin ────────────────────────────────────────────────────────────────
   {
     id: 'you',
@@ -137,12 +144,19 @@ export const STAR_NODES: StarNode[] = [
     title: 'FPT University',
     subtitle: '2020 – 2024 · Software Engineering',
     image: '/images/fpt-bachelor.JPG',
-    body: 'Four years building the engineering foundation — algorithms, systems, and the discipline to think before coding.',
-    bullets: [
-      'Data Structures & Algorithms — the core that everything else sits on',
-      'Software engineering principles: design, architecture, maintainability',
-      'Where curiosity became a professional habit',
-    ],
+    personal: {
+      labels: { passion: 'What I took away', mindset: 'Discipline', direction: 'Capstone' },
+      passion:
+        'I came to FPT to learn how to code — and discovered what it takes to be an engineer who thinks in systems before he builds.',
+      mindset: [
+        'I learned to see problems as algorithms — to make every solution efficient by design.',
+        'I learned to architect systems — to build software that endures and scales.',
+        'I learned to write deliberate code — to think clearly before touching the keyboard.',
+      ],
+      direction: [
+        'Developed E-Furniture — an AR app for real-time 3D furniture visualization in home environments.',
+      ],
+    },
   },
   {
     id: 'vtc',
@@ -155,12 +169,19 @@ export const STAR_NODES: StarNode[] = [
     title: 'VTC Academy',
     subtitle: '2025 · Game Development',
     image: '/images/vtc-bachelor.JPG',
-    body: 'An intensive program where game development stopped being a hobby and became a craft.',
-    bullets: [
-      'Computer Graphics & rendering fundamentals — the spark for Technical Art',
-      'Shipped FPS Zombie Shooter and a 3D RPG as solo developer',
-      'Game Engine internals: the loop, the pipeline, the physics',
-    ],
+    personal: {
+      labels: { passion: 'What I took away', mindset: 'Discipline', direction: 'Capstone' },
+      passion:
+        'I came to VTC to turn a hobby into a craft — and found what it takes to be a developer who understands games from the pixel to the pipeline.',
+      mindset: [
+        'I learned how graphics are rendered — to understand what makes a game look alive.',
+        'I learned an engine from the inside — to command the loop, the pipeline, the physics.',
+        'I learned to build with raycasting & physics — to make mechanics feel precise and real.',
+      ],
+      direction: [
+        'Developed a 3D FPS Zombie Shooter — immersive shooting mechanics with Raycasting for precise hit detection.',
+      ],
+    },
   },
 
   // ── The Studios (career) ───────────────────────────────────────────────────
@@ -175,12 +196,20 @@ export const STAR_NODES: StarNode[] = [
     title: 'Rocket Studio',
     subtitle: '2023 · Intern / Fresher Game Developer',
     role: 'Gameplay Programmer',
-    body: 'Started a professional journey at one of the leading casual game studios in Vietnam.',
-    bullets: [
-      'Helped develop Knights vs Orcs (100k+ downloads on Play Store)',
-      'Transformed programming mindset from zero to professional',
-      'Adapted to the fast pace of Hyper Casual development',
-    ],
+    personal: {
+      labels: { passion: 'The work', mindset: 'Craft', direction: 'Impact' },
+      passion:
+        "I joined Rocket Studio as a fresher to put what I'd studied into production — and learned what it really takes to ship a game with a team.",
+      mindset: [
+        'I learned to write gameplay code that ships — not just code that runs.',
+        'I adapted to the pace and constraints of hyper-casual production.',
+        'I turned an academic mindset into a professional one.',
+      ],
+      direction: [
+        'Helped ship Toilet Paper Rush — 100k+ downloads on Google Play.',
+      ],
+    },
+    links: [{ label: 'Visit Rocket Studio', href: 'https://rocketgamestudio.com/vi' }],
   },
   {
     id: 'wolffun',
@@ -191,13 +220,27 @@ export const STAR_NODES: StarNode[] = [
     y: 0.44,
     magnitude: 'major',
     title: 'Wolffun Studio',
-    subtitle: '2025 – Present · Game Developer',
-    role: 'Game Developer — In-game UI, API & Localization',
-    body: 'Working in a high-expertise environment on large-scale Action PvP projects.',
-    bullets: [
-      'Joined Thetan Immortal — Google Play Best 2025 winner',
-      'Built advanced in-game UI, API interaction and global localization',
-      'Sharpened skills by solving high-polish challenges',
+    subtitle: '2025 – 2026 · Game Developer',
+    role: 'Solo Game Developer',
+    personal: {
+      labels: { passion: 'The work', mindset: 'Craft', direction: 'Impact' },
+      passion:
+        'I joined Wolffun to grow inside a senior team — and learned to hold my own work to a global standard of polish.',
+      mindset: [
+        'I build in-game UI for a large-scale, live Action-PvP product.',
+        'I integrate gameplay APIs and deliver global localization.',
+        'I sharpen my craft by solving high-polish, production-grade challenges.',
+      ],
+      direction: [
+        'Contributing to Thetan Immortal — Google Play Best of 2025.',
+      ],
+    },
+    links: [
+      {
+        label: 'Visit Wolffun Studio',
+        href: 'https://wolffungame.com',
+        icon: 'https://vgda.vn/uploads/logo_wolffun_500x2_-_khanh_nguyen_dinh.png',
+      },
     ],
   },
   {
@@ -209,8 +252,21 @@ export const STAR_NODES: StarNode[] = [
     y: 0.6,
     magnitude: 'major',
     title: 'Mint Rocket',
-    subtitle: 'The Dream Studio',
-    body: 'The studio behind Dave the Diver — a perfect blend of gameplay depth, art direction and storytelling that defines what indie can achieve.',
+    subtitle: '2026 – Present · Game Developer',
+    role: 'Gameplay Programmer',
+    personal: {
+      labels: { passion: 'The work', mindset: 'Craft', direction: 'Impact' },
+      passion:
+        'I joined Mint Rocket — the studio behind Dave the Diver — to build games where gameplay depth, art, and story come together as one.',
+      mindset: [
+        'I build and refine the core gameplay systems players feel moment to moment.',
+        'I turn design intent into responsive, polished mechanics.',
+        'I work closely with art and design to make every interaction feel right.',
+      ],
+      direction: [
+        "Crafting the studio's next experience — more to come.",
+      ],
+    },
     links: [{ label: 'Visit Mint Rocket', href: 'https://www.mintrock.et/en/' }],
   },
 
@@ -483,6 +539,82 @@ export const STAR_NODES: StarNode[] = [
     bullets: ['Shader coding', 'VFX pipeline', 'Performance optimization'],
   },
 ];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Constellation layout — spreads the chapters left→right with a fixed gap.
+//
+// Why: the raw stars above are authored "shape-first" (each cluster drawn around
+// its own centre), which left the constellations overlapping in X. This pass
+// keeps every cluster's internal shape, just (1) compacts it a touch and (2)
+// re-homes it into its own horizontal band so there is always clear space
+// between chapters. The bands fill the wide, horizontally-scrolling sky canvas.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Reading order of the chapters across the sky (matches the chapter numbers).
+const CONSTELLATION_ORDER = ['origin', 'forge', 'studios', 'arsenal', 'pantheon', 'horizon'] as const;
+
+// Sky canvas width, in rem (kept in sync with ConstellationSky's min-width). The
+// galaxy is intentionally wider than the screen so the chapters breathe and the
+// canvas scrolls on X.
+export const SKY_WIDTH_REM = 120;
+// Width the Arsenal "Unity logo" was authored against. Its x-offsets are squeezed
+// by BASE/WIDTH so the logo keeps its aspect when the canvas is stretched wider.
+const SKY_BASE_REM = 64;
+
+// How tightly each cluster is packed (1 = as authored). Sub-1 buys gap between
+// chapters while keeping stars within a chapter comfortably readable.
+const INTERNAL_SCALE = 0.72;
+// Per-constellation spacing multiplier (×INTERNAL_SCALE). Uniform, so it spreads
+// the stars without distorting the constellation's shape or its angles. Arsenal
+// packs 10 stars into a tight Unity-logo footprint, so it gets extra breathing room.
+const CLUSTER_SPACING: Partial<Record<(typeof CONSTELLATION_ORDER)[number], number>> = {
+  arsenal: 1.4,
+};
+// Usable horizontal range; the rest is breathing room at the sky's edges.
+const LAYOUT_X: [number, number] = [0.05, 0.95];
+
+function applyConstellationLayout(nodes: StarNode[]): StarNode[] {
+  const byId = new Map<string, StarNode[]>();
+  for (const id of CONSTELLATION_ORDER) byId.set(id, []);
+  for (const node of nodes) byId.get(node.constellationId)?.push(node);
+
+  // 1. Per constellation: centroid + each member's compacted offset from it.
+  const groups = CONSTELLATION_ORDER.map(id => {
+    const members = byId.get(id) ?? [];
+    const cy = members.reduce((sum, n) => sum + n.y, 0) / members.length;
+    const cx = members.reduce((sum, n) => sum + n.x, 0) / members.length;
+    // Arsenal alone is squeezed horizontally to hold the Unity-logo aspect ratio
+    // once the SVG/percentage layout stretches it across the wide canvas.
+    const xSqueeze = id === 'arsenal' ? SKY_BASE_REM / SKY_WIDTH_REM : 1;
+    const scale = INTERNAL_SCALE * (CLUSTER_SPACING[id] ?? 1);
+    const offsets = members.map(node => ({
+      node,
+      dx: (node.x - cx) * scale * xSqueeze,
+      dy: (node.y - cy) * scale,
+    }));
+    const halfWidth = Math.max(0, ...offsets.map(o => Math.abs(o.dx)));
+    return { cy, halfWidth, offsets };
+  });
+
+  // 2. Distribute the bands edge-to-edge with one shared, fixed gap between them.
+  const span = LAYOUT_X[1] - LAYOUT_X[0];
+  const totalWidth = groups.reduce((sum, g) => sum + g.halfWidth * 2, 0);
+  const gap = (span - totalWidth) / Math.max(1, groups.length - 1);
+
+  let edge = LAYOUT_X[0];
+  for (const group of groups) {
+    const center = edge + group.halfWidth;
+    for (const { node, dx, dy } of group.offsets) {
+      node.x = center + dx;
+      node.y = group.cy + dy; // keep each chapter's authored vertical position
+    }
+    edge = center + group.halfWidth + gap;
+  }
+
+  return nodes;
+}
+
+export const STAR_NODES: StarNode[] = applyConstellationLayout(RAW_STAR_NODES);
 
 export const CONSTELLATIONS: Constellation[] = [
   {

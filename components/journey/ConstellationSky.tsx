@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, Orbit } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CONSTELLATIONS, STAR_NODES } from '@/data/journey-data';
+import { CONSTELLATIONS, SKY_WIDTH_REM, STAR_NODES } from '@/data/journey-data';
 import CodexView from './CodexView';
 import SocialLinks from './SocialLinks';
 import ConstellationLines from './ConstellationLines';
@@ -29,6 +29,7 @@ export default function ConstellationSky() {
   const [finaleDismissed, setFinaleDismissed] = useState(false);
 
   const sectionRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const parallaxRef = useRef<HTMLDivElement>(null);
   const inViewRef = useRef(true);
   // Persists across effect re-runs so the wheel cooldown actually holds.
@@ -108,6 +109,22 @@ export default function ConstellationSky() {
       };
     });
   }, [members, positions, discovered, activeConstellationId, completedIds]);
+
+  // Follow the focused star — when the keyboard/wheel cursor moves to a star
+  // (incl. carouseling through the modal, which also sets focus), pan the wide
+  // sky so that star is centred. Hover is deliberately excluded so the mouse
+  // never yanks the canvas around.
+  useEffect(() => {
+    if (!focusedId) return;
+    const container = scrollRef.current;
+    const node = STAR_NODES.find(item => item.id === focusedId);
+    if (!container || !node) return;
+    const target = node.x * container.scrollWidth - container.clientWidth / 2;
+    container.scrollTo({
+      left: Math.max(0, target),
+      behavior: reducedMotion ? 'auto' : 'smooth',
+    });
+  }, [focusedId, reducedMotion]);
 
   const showIntro = discovered.size === 0;
   // Galaxy is in "immersive" mode (reticle cursor on, native cursor hidden)
@@ -327,10 +344,14 @@ export default function ConstellationSky() {
       style={{ cursor: immersiveCursor ? 'none' : 'auto' }}
     >
       {/* ── Scrollable canvas ──────────────────────────────────────────────
-          Locked vertically; scrolls on X when the sky is wider than the
-          screen (min 64rem, so the stars never cram together on mobile). */}
-      <div className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden">
-        <div className="relative h-full" style={{ width: 'max(100%, 64rem)' }}>
+          Locked vertically; scrolls on X. The sky is intentionally wider than
+          the screen (SKY_WIDTH_REM) so each constellation gets its own band with
+          fixed spacing — see applyConstellationLayout in journey-data. */}
+      <div
+        ref={scrollRef}
+        className="no-scrollbar absolute inset-0 overflow-x-auto overflow-y-hidden"
+      >
+        <div className="relative h-full" style={{ width: `max(100%, ${SKY_WIDTH_REM}rem)` }}>
           {/* Deep background — nebula glows + star field, drifts with parallax */}
           <div ref={parallaxRef} className="absolute inset-0 will-change-transform">
             {/* Nebula glows */}

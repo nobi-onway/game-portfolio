@@ -142,6 +142,7 @@ export default function StarModal({
     <AnimatePresence>
       {node && chart && (
         <motion.div
+          key="star-modal"
           className="absolute inset-0 z-[60] flex items-center justify-center px-14 py-4 lg:px-16"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -240,7 +241,12 @@ export default function StarModal({
               <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto px-6 py-6">
               {/* ── Constellation chart banner ───────────────────────────── */}
               <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/40">
-                <svg viewBox="0 0 200 64" className="h-20 w-full" aria-hidden="true">
+                <svg
+                  viewBox="0 0 200 64"
+                  preserveAspectRatio="xMidYMid meet"
+                  className="block aspect-[25/8] w-full"
+                  aria-hidden="true"
+                >
                   {chart.lines.map((edge, index) => (
                     <line
                       key={index}
@@ -328,6 +334,41 @@ export default function StarModal({
                 </div>
               )}
 
+              {/* Studio website — lives inside the identity card, not a separate panel.
+                  The studio's own icon is pulled from its domain favicon. */}
+              {node.category === 'studio' && node.links && node.links.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2.5">
+                  {node.links.map(link => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold text-black transition-transform hover:scale-105"
+                      style={{ background: accent }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={
+                          link.icon ??
+                          `https://www.google.com/s2/favicons?domain=${new URL(link.href).hostname}&sz=64`
+                        }
+                        alt=""
+                        aria-hidden="true"
+                        className={
+                          link.icon
+                            ? 'h-4 w-auto max-w-[72px] shrink-0 object-contain'
+                            : 'size-4 shrink-0 rounded-sm bg-white/90 object-contain p-px'
+                        }
+                        loading="lazy"
+                      />
+                      {link.label}
+                      <ExternalLink className="size-3.5" />
+                    </a>
+                  ))}
+                </div>
+              )}
+
               {node.category === 'education' && node.image && (
                 <button
                   type="button"
@@ -352,7 +393,7 @@ export default function StarModal({
                   <img
                     src={node.image}
                     alt={node.title}
-                    className="relative h-36 w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                    className="relative mx-auto h-20 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                     loading="lazy"
                   />
                 </button>
@@ -462,13 +503,13 @@ export default function StarModal({
 
               {/* ── Panel · Personal (Passion + Mindset) ────────────────── */}
               {node.personal?.passion && (
-                <div className="flex w-[380px] shrink-0 flex-col gap-7 overflow-y-auto border-l border-white/10 px-6 py-6">
+                <div className="flex min-w-[380px] flex-1 flex-col gap-7 overflow-y-auto border-l border-white/10 px-6 py-6">
                   <div>
                     <span
                       className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
                       style={{ color: accent }}
                     >
-                      ✦ Passion
+                      ✦ {node.personal.labels?.passion ?? 'Passion'}
                     </span>
                     <p className="text-sm font-bold italic leading-relaxed text-white/85">
                       &ldquo;{typedPassion}
@@ -487,7 +528,7 @@ export default function StarModal({
                         className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
                         style={{ color: accent }}
                       >
-                        ✦ Mindset
+                        ✦ {node.personal.labels?.mindset ?? 'Mindset'}
                       </span>
                       <ul className="space-y-2">
                         {node.personal.mindset.map((line, i) => (
@@ -511,7 +552,7 @@ export default function StarModal({
                         className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
                         style={{ color: accent }}
                       >
-                        ✦ Direction
+                        ✦ {node.personal.labels?.direction ?? 'Direction'}
                       </span>
                       <ul className="space-y-2">
                         {node.personal.direction.map((line, i) => (
@@ -580,8 +621,9 @@ export default function StarModal({
               )}
               {/* ── /Panel · Inspirations ────────────────────────────────── */}
 
-              {/* ── Panel · Details (readouts + links) ───────────────────── */}
-              {(node.meta || (node.links && node.links.length > 0)) && (
+              {/* ── Panel · Details (readouts + links) ─────────────────────
+                  Studio links live in the identity card, so they're excluded here. */}
+              {(node.meta || (node.category !== 'studio' && node.links && node.links.length > 0)) && (
                 <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
               {node.meta && (
                 <div className="grid grid-cols-2 gap-3">
@@ -603,7 +645,7 @@ export default function StarModal({
                 </div>
               )}
 
-              {node.links && node.links.length > 0 && (
+              {node.category !== 'studio' && node.links && node.links.length > 0 && (
                 <div className="mt-6 flex flex-wrap gap-2.5">
                   {node.links.map((link, index) => (
                     <a
@@ -642,6 +684,7 @@ export default function StarModal({
       {/* ── Lightbox ─────────────────────────────────────────────────────────── */}
       {lightboxSrc && (
         <motion.div
+          key="star-lightbox"
           className="absolute inset-0 z-[80] flex items-center justify-center p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
