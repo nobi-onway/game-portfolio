@@ -54,7 +54,9 @@
       "Bash(npm install *)",
       "Bash(sudo npm *)",
       "Bash(echo \"exit:$?\")",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(npx tsx -e ' *)",
+      "Bash(npx tsx *)"
     ]
   }
 }

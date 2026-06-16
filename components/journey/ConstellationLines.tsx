@@ -16,7 +16,7 @@ export default function ConstellationLines({
   completed,
   reducedMotion,
 }: Props) {
-  const baseOpacity = completed ? 0.85 : active ? 0.55 : 0.16;
+  const baseOpacity = completed ? 0.9 : active ? 0.72 : 0.34;
   const baseStroke = completed ? '#FBBF24' : '#5B8DEF';
   const flowing = !reducedMotion && active;
 
@@ -40,7 +40,7 @@ export default function ConstellationLines({
               x2={b.x * 100}
               y2={b.y * 100}
               stroke={baseStroke}
-              strokeWidth={completed ? 1 : 0.6}
+              strokeWidth={completed ? 1.1 : 0.8}
               vectorEffect="non-scaling-stroke"
               opacity={baseOpacity}
               style={{ transition: 'opacity 0.5s ease' }}

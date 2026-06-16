@@ -59,6 +59,25 @@ function useMiniChart(node: StarNode | null) {
   }, [node]);
 }
 
+// ── Highlight key metrics / achievements ─────────────────────────────────────
+// Wraps numbers-with-units and award phrases in an accented span.
+function renderHighlighted(text: string, accent: string) {
+  const segments = text.split(/(\d[\d,.]*(?:[kKmMbBxX]|\+|%)*|\bBest of \d{4}\b)/g);
+  return segments.map((seg, i) =>
+    /^(\d[\d,.]*(?:[kKmMbBxX]|\+|%)*|Best of \d{4})$/i.test(seg) ? (
+      <span
+        key={i}
+        className="font-black"
+        style={{ color: accent, textShadow: `0 0 12px ${accent}66` }}
+      >
+        {seg}
+      </span>
+    ) : (
+      seg
+    ),
+  );
+}
+
 // ── Typewriter body reveal ───────────────────────────────────────────────────
 function useTypewriter(text: string, key: string | undefined, enabled: boolean) {
   const [typed, setTyped] = useState(text);
@@ -334,19 +353,33 @@ export default function StarModal({
                 </div>
               )}
 
-              {/* Studio website — lives inside the identity card, not a separate panel.
-                  The studio's own icon is pulled from its domain favicon. */}
+              {/* Studio website — lives inside the identity card, not a separate panel. */}
               {node.category === 'studio' && node.links && node.links.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2.5">
+                <div className="mt-5 flex flex-col gap-2">
                   {node.links.map(link => (
                     <a
                       key={link.href}
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold text-black transition-transform hover:scale-105"
-                      style={{ background: accent }}
+                      className="group relative inline-flex items-center gap-3 overflow-hidden rounded-lg border px-4 py-3 text-xs font-bold transition-all duration-300 hover:scale-[1.02]"
+                      style={{
+                        borderColor: `${accent}55`,
+                        background: `linear-gradient(135deg, ${accent}18 0%, rgba(255,255,255,0.02) 100%)`,
+                        color: accent,
+                        boxShadow: `0 0 28px -12px ${accent}`,
+                      }}
                     >
+                      {/* Sweep glow on hover */}
+                      <div
+                        className="pointer-events-none absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
+                        style={{ background: `linear-gradient(90deg, transparent, ${accent}25, transparent)` }}
+                      />
+                      {/* Top edge highlight */}
+                      <div
+                        className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                        style={{ background: `linear-gradient(90deg, transparent, ${accent}88, transparent)` }}
+                      />
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={
@@ -357,13 +390,13 @@ export default function StarModal({
                         aria-hidden="true"
                         className={
                           link.icon
-                            ? 'h-4 w-auto max-w-[72px] shrink-0 object-contain'
-                            : 'size-4 shrink-0 rounded-sm bg-white/90 object-contain p-px'
+                            ? 'relative h-4 w-auto max-w-[72px] shrink-0 object-contain'
+                            : 'relative size-4 shrink-0 rounded-sm bg-white/90 object-contain p-px'
                         }
                         loading="lazy"
                       />
-                      {link.label}
-                      <ExternalLink className="size-3.5" />
+                      <span className="relative flex-1 tracking-wide">{link.label}</span>
+                      <ExternalLink className="relative size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                     </a>
                   ))}
                 </div>
@@ -511,11 +544,11 @@ export default function StarModal({
                     >
                       ✦ {node.personal.labels?.passion ?? 'Passion'}
                     </span>
-                    <p className="text-sm font-bold italic leading-relaxed text-white/85">
-                      &ldquo;{typedPassion}
+                    <p className=”text-sm font-bold italic leading-relaxed text-white/85”>
+                      &ldquo;{donePassion ? renderHighlighted(typedPassion, accent) : typedPassion}
                       {!donePassion ? (
                         <span
-                          className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic"
+                          className=”ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic”
                           style={{ background: accent }}
                         />
                       ) : '”'}
@@ -539,7 +572,7 @@ export default function StarModal({
                             >
                               {String(i + 1).padStart(2, '0')}
                             </span>
-                            <span className="leading-relaxed">{line}</span>
+                            <span className="leading-relaxed">{renderHighlighted(line, accent)}</span>
                           </li>
                         ))}
                       </ul>
@@ -563,7 +596,7 @@ export default function StarModal({
                             >
                               {String(i + 1).padStart(2, '0')}
                             </span>
-                            <span className="leading-relaxed">{line}</span>
+                            <span className="leading-relaxed font-bold text-white/85">{renderHighlighted(line, accent)}</span>
                           </li>
                         ))}
                       </ul>

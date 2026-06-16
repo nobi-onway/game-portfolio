@@ -33,8 +33,19 @@ export default function StarNodeView({
   const hollow = node.category === 'future' && !discovered;
   const twinkleDuration = 2.6 + (node.id.length % 4) * 0.55;
 
-  const labelOpacity = focused ? 1 : dimmed ? 0 : 0.55;
+  // Dense clusters tag some stars as hover-only so their labels don't pile up.
+  const labelOpacity = focused ? 1 : dimmed ? 0 : node.labelOnHover ? 0 : 0.55;
   const outerScale = dimmed ? 0.88 : focused ? 1.28 : 1;
+
+  // Place the label radially (away from the cluster) so taglines fan out instead
+  // of stacking. `x`/`y` keep the pill centred on its axis; focus adds a small nudge.
+  const labelDir = node.labelDir ?? 'bottom';
+  const labelPos = {
+    bottom: { cls: 'left-1/2 top-full mt-1', x: '-50%', y: focused ? 3 : 0 },
+    top: { cls: 'left-1/2 bottom-full mb-1', x: '-50%', y: focused ? -3 : 0 },
+    left: { cls: 'right-full top-1/2 mr-1.5', x: focused ? -3 : 0, y: '-50%' },
+    right: { cls: 'left-full top-1/2 ml-1.5', x: focused ? 3 : 0, y: '-50%' },
+  }[labelDir];
 
   return (
     <button
@@ -156,13 +167,15 @@ export default function StarNodeView({
           />
         )}
 
-        {/* Label — always-on for anchor stars, on hover for the rest */}
+        {/* Label — always-on for anchor stars, on hover for the rest. Placed
+            radially (labelDir) so dense clusters keep their taglines apart. */}
         <motion.span
-          className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 whitespace-nowrap rounded-full border bg-black/70 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-md"
-          style={{ x: '-50%' }}
+          className={`pointer-events-none absolute z-20 whitespace-nowrap rounded-full border bg-black/70 px-3 py-1 text-[11px] font-semibold text-white/90 backdrop-blur-md ${labelPos.cls}`}
+          initial={false}
           animate={{
             opacity: labelOpacity,
-            y: focused ? 3 : 0,
+            x: labelPos.x,
+            y: labelPos.y,
             borderColor: focused ? `${accent}80` : 'rgba(255,255,255,0.1)',
           }}
           transition={{ duration: 0.2 }}

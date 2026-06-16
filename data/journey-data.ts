@@ -22,6 +22,9 @@ export interface StarNode {
   y: number; // 0..1
   magnitude: StarMagnitude;
   accent?: string; // overrides the category colour
+  // Label placement — for dense clusters (e.g. Arsenal) so taglines don't collide.
+  labelDir?: 'top' | 'bottom' | 'left' | 'right'; // side the label sits on (default 'bottom')
+  labelOnHover?: boolean; // reveal the label only on hover/focus (keeps tight clusters clean)
   image?: string; // hero shot shown in the detail modal / codex card
   title: string;
   subtitle?: string;
@@ -358,17 +361,19 @@ const RAW_STAR_NODES: StarNode[] = [
   },
 
   // ── The Arsenal (Unity logo) ────────────────────────────────────────────────
-  // unity sits dead-centre; three long arms (csharp ↑, scripting ↙, rendering ↘)
-  // radiate 120° apart, and each arm tips into a sharp 45° arrowhead aiming back
-  // at the engine — the two leaves are the barbs.
+  // unity sits dead-centre; three long arms (csharp ↓, scripting ↖, rendering ↗)
+  // radiate 120° apart, and each arm tips into a wide swept-back arrowhead — the
+  // two barbs open into a 120° wedge facing the engine (240° on the outer side),
+  // each barb sitting 60° off the inward (toward-engine) axis.
+  // (The whole arsenal is flipped vertically about the engine.)
   //
   // Coords are built in true-angle space, then x-offsets are pre-compressed
   // (~÷1.75, the canvas width:height ratio) so the SVG's preserveAspectRatio
-  // "none" stretch resolves them to a real 120° spread with 45° arrow apexes.
+  // "none" stretch resolves them to a real 120° spread with 120°/240° arrowheads.
   //   center : unity
-  //   arm ↑  : csharp     → oop, optimization   (arrowhead pointing down)
-  //   arm ↙  : scripting  → mono, data          (arrowhead pointing up-right)
-  //   arm ↘  : rendering  → vfx, shaders         (arrowhead pointing up-left)
+  //   arm ↓  : csharp     → oop, optimization   (barbs swept up toward engine)
+  //   arm ↖  : scripting  → mono, data          (barbs swept toward engine)
+  //   arm ↗  : rendering  → vfx, shaders         (barbs swept toward engine)
   {
     id: 'unity',
     label: 'Unity Engine',
@@ -394,9 +399,9 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'C#',
     category: 'skill',
     constellationId: 'arsenal',
-    // Arm tip ↑ (long seam up from the engine).
+    // Arm tip ↓ (long seam down from the engine).
     x: 0.37,
-    y: 0.115,
+    y: 0.357,
     magnitude: 'major',
     title: 'C# & Gameplay Programming',
     subtitle: 'Core Language',
@@ -412,10 +417,12 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'OOP & Patterns',
     category: 'skill',
     constellationId: 'arsenal',
-    // Barb of the ↑ arrow — upper-right.
-    x: 0.388,
-    y: 0.037,
+    // Barb of the ↓ arrow — swept up toward engine, right side (60° off inward).
+    x: 0.425,
+    y: 0.302,
     magnitude: 'minor',
+    labelDir: 'right',
+    labelOnHover: true,
     title: 'OOP & Design Patterns',
     subtitle: 'Clean Architecture',
     body: 'Designing maintainable gameplay systems on solid object-oriented foundations, reaching for the right pattern for the job.',
@@ -426,10 +433,12 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'Optimization',
     category: 'skill',
     constellationId: 'arsenal',
-    // Barb of the ↑ arrow — upper-left.
-    x: 0.352,
-    y: 0.037,
+    // Barb of the ↓ arrow — swept up toward engine, left side (60° off inward).
+    x: 0.315,
+    y: 0.302,
     magnitude: 'minor',
+    labelDir: 'left',
+    labelOnHover: true,
     title: 'Performance Optimization',
     subtitle: 'Mobile-first',
     body: 'Profiling and optimising for low-end mobile — zero-alloc patterns, GC pressure, memory and frame budget.',
@@ -442,10 +451,11 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'Engine Scripting',
     category: 'skill',
     constellationId: 'arsenal',
-    // Arm tip ↙ (long seam down-left from the engine).
-    x: 0.318,
-    y: 0.273,
+    // Arm tip ↖ (long seam up-left from the engine).
+    x: 0.302,
+    y: 0.151,
     magnitude: 'major',
+    labelDir: 'left',
     title: 'Scripting & Architecture',
     subtitle: 'Unity Runtime Model',
     body: "Structuring a game's runtime around Unity's component model and data-driven content for flexible, scalable systems.",
@@ -456,10 +466,12 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'MonoBehaviour',
     category: 'skill',
     constellationId: 'arsenal',
-    // Barb of the ↙ arrow — outer-left.
-    x: 0.27,
-    y: 0.284,
+    // Barb of the ↖ arrow — swept toward engine (60° off inward axis).
+    x: 0.302,
+    y: 0.260,
     magnitude: 'minor',
+    labelDir: 'left',
+    labelOnHover: true,
     title: 'MonoBehaviour & Lifecycle',
     subtitle: 'Component Model',
     body: 'Mastering the Unity execution order and component lifecycle to build predictable, frame-efficient gameplay logic.',
@@ -470,10 +482,12 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'ScriptableObject',
     category: 'skill',
     constellationId: 'arsenal',
-    // Barb of the ↙ arrow — lower.
-    x: 0.289,
-    y: 0.339,
+    // Barb of the ↖ arrow — swept toward engine (60° off inward axis).
+    x: 0.357,
+    y: 0.097,
     magnitude: 'minor',
+    labelDir: 'top',
+    labelOnHover: true,
     title: 'ScriptableObject & Addressables',
     subtitle: 'Data-Driven Content',
     body: 'Decoupling configuration and content from code with ScriptableObjects, and streaming assets on demand via Addressables.',
@@ -486,10 +500,11 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'Rendering',
     category: 'skill',
     constellationId: 'arsenal',
-    // Arm tip ↘ (long seam down-right from the engine).
-    x: 0.422,
-    y: 0.273,
+    // Arm tip ↗ (long seam up-right from the engine).
+    x: 0.438,
+    y: 0.151,
     magnitude: 'major',
+    labelDir: 'right',
     title: 'Rendering & Graphics',
     subtitle: 'Visual Pipeline',
     body: 'Driving the look of the game through the URP pipeline — from material authoring to lighting and post-processing on mobile.',
@@ -500,10 +515,12 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'Real-time VFX',
     category: 'skill',
     constellationId: 'arsenal',
-    // Barb of the ↘ arrow — outer-right.
-    x: 0.47,
-    y: 0.284,
+    // Barb of the ↗ arrow — swept toward engine (60° off inward axis).
+    x: 0.438,
+    y: 0.260,
     magnitude: 'minor',
+    labelDir: 'right',
+    labelOnHover: true,
     title: 'VFX & Real-time Effects',
     subtitle: 'Game Feel',
     body: 'Particle systems and shader-driven effects that make combat and UI feel responsive and juicy.',
@@ -514,10 +531,12 @@ const RAW_STAR_NODES: StarNode[] = [
     label: 'Shaders / HLSL',
     category: 'skill',
     constellationId: 'arsenal',
-    // Barb of the ↘ arrow — lower.
-    x: 0.451,
-    y: 0.339,
+    // Barb of the ↗ arrow — swept toward engine (60° off inward axis).
+    x: 0.383,
+    y: 0.097,
     magnitude: 'minor',
+    labelDir: 'top',
+    labelOnHover: true,
     title: 'Shaders & Graphics',
     subtitle: 'Technical Art focus',
     body: 'Where I am heading: authoring HLSL and Shader Graph for stylised, performant looks on mobile URP.',
@@ -643,13 +662,13 @@ export const CONSTELLATIONS: Constellation[] = [
     id: 'arsenal',
     name: 'The Arsenal',
     tagline: 'What I wield',
-    // Traced as the Unity logo — a hexagonal cube with the engine at its core.
-    // 1 center (unity) → 3 cores at 120° → each core forks to 2 leaves (10 stars):
-    //   ↑  csharp    → oop, optimization   (top face)
-    //   ↙  scripting → mono, data          (lower-left face)
-    //   ↘  rendering → vfx, shaders        (lower-right face)
+    // A clean tree — the engine at the core, three cores at 120°, each forking
+    // into its two leaves. No outer silhouette, so every edge reads as a branch.
+    //   csharp    → oop, optimization
+    //   scripting → mono, data
+    //   rendering → vfx, shaders
     edges: [
-      // Three inner seams — from the engine out to each core (the cube's "Y").
+      // Three inner seams — from the engine out to each core.
       ['unity', 'csharp'],
       ['unity', 'scripting'],
       ['unity', 'rendering'],
@@ -660,13 +679,6 @@ export const CONSTELLATIONS: Constellation[] = [
       ['scripting', 'data'],
       ['rendering', 'vfx'],
       ['rendering', 'shaders'],
-      // Outer hexagon silhouette — leaves linked into the cube outline.
-      ['oop', 'optimization'],
-      ['optimization', 'vfx'],
-      ['vfx', 'shaders'],
-      ['shaders', 'data'],
-      ['data', 'mono'],
-      ['mono', 'oop'],
     ],
     hiddenQuote: 'Tools are only as sharp as the hands that wield them.',
   },
