@@ -1,6 +1,6 @@
 'use client';
-import { Download, RotateCcw, Sparkles } from 'lucide-react';
-import { CATEGORY_ACCENT, CATEGORY_LABEL, CV_HREF, type StarCategory } from '@/data/journey-data';
+import { RotateCcw, Sparkles } from 'lucide-react';
+import { CATEGORY_ACCENT, CATEGORY_LABEL, type StarCategory } from '@/data/journey-data';
 import SocialLinks from './SocialLinks';
 
 type Props = {
@@ -23,7 +23,7 @@ export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
           <span className="section-label">An interactive self-portrait</span>
         </div>
         <h2 className="mt-2 text-lg font-black tracking-tight md:text-xl lg:text-2xl xl:text-3xl">
-          A journey told as a <span className="text-gradient">galaxy</span>
+          A journey told as a <span className="text-gradient">GALAXY</span>
         </h2>
 
         <div className="mt-3 flex items-center gap-3">
@@ -39,14 +39,6 @@ export default function DiscoveryHUD({ discovered, total, onReset }: Props) {
             />
           </div>
         </div>
-
-        <a
-          href={CV_HREF}
-          download
-          className="pointer-events-auto mt-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-white backdrop-blur-md transition-colors hover:bg-primary/25"
-        >
-          <Download className="size-3.5" /> Download CV
-        </a>
       </div>
 
       {/* Bottom-center — gesture hints (desktop only, floated above the bottom legend bar) */}

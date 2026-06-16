@@ -1,9 +1,10 @@
 'use client';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, Orbit } from 'lucide-react';
+import { BookOpen, Download, Orbit } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CONSTELLATIONS, SKY_WIDTH_REM, STAR_NODES } from '@/data/journey-data';
+import { CONSTELLATIONS, CV_HREF, SKY_WIDTH_REM, STAR_NODES } from '@/data/journey-data';
 import CodexView from './CodexView';
+import CosmicCanvas from './CosmicCanvas';
 import SocialLinks from './SocialLinks';
 import ConstellationLines from './ConstellationLines';
 import DiscoveryHUD from './DiscoveryHUD';
@@ -405,6 +406,11 @@ export default function ConstellationSky() {
         </div>
       </div>
 
+      {/* Interactive FX layer — click detonations + sparse falling meteors.
+          Sits above the vignette, below the HUD. pointer-events-none, so it
+          reads clicks off the window and never steals them from the stars. */}
+      <CosmicCanvas reducedMotion={reducedMotion} active={immersiveCursor} />
+
       {/* Vignette — pinned to the viewport, above the scrolling canvas */}
       <div className="pointer-events-none absolute inset-0 z-[5] bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.5)_100%)]" />
 
@@ -415,22 +421,31 @@ export default function ConstellationSky() {
         reducedMotion={reducedMotion}
       />
 
-      {/* Persistent view toggle — same spot in both Galaxy and Codex */}
-      <button
-        type="button"
-        onClick={toggleView}
-        className="absolute right-5 top-5 z-[45] flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-colors hover:bg-primary/20 md:right-8 md:top-8"
-      >
-        {view === 'galaxy' ? (
-          <>
-            <BookOpen className="size-4" /> Read all
-          </>
-        ) : (
-          <>
-            <Orbit className="size-4" /> Galaxy
-          </>
-        )}
-      </button>
+      {/* Persistent top-right controls — view toggle + CV, same spot in both views */}
+      <div className="absolute right-5 top-5 z-[45] flex items-center gap-2.5 md:right-8 md:top-8">
+        <button
+          type="button"
+          onClick={toggleView}
+          className="flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-colors hover:bg-primary/20"
+        >
+          {view === 'galaxy' ? (
+            <>
+              <BookOpen className="size-4" /> Read all
+            </>
+          ) : (
+            <>
+              <Orbit className="size-4" /> Galaxy
+            </>
+          )}
+        </button>
+        <a
+          href={CV_HREF}
+          download
+          className="flex items-center gap-2 rounded-full border border-primary/40 bg-primary/15 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md transition-colors hover:bg-primary/25"
+        >
+          <Download className="size-4" /> Download CV
+        </a>
+      </div>
 
       {/* First-load framing — fades out once exploration begins */}
       <AnimatePresence>

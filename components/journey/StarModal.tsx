@@ -59,23 +59,31 @@ function useMiniChart(node: StarNode | null) {
   }, [node]);
 }
 
-// ── Highlight key metrics / achievements ─────────────────────────────────────
-// Wraps numbers-with-units and award phrases in an accented span.
-function renderHighlighted(text: string, accent: string) {
-  const segments = text.split(/(\d[\d,.]*(?:[kKmMbBxX]|\+|%)*|\bBest of \d{4}\b)/g);
-  return segments.map((seg, i) =>
-    /^(\d[\d,.]*(?:[kKmMbBxX]|\+|%)*|Best of \d{4})$/i.test(seg) ? (
-      <span
-        key={i}
-        className="font-black"
-        style={{ color: accent, textShadow: `0 0 12px ${accent}66` }}
-      >
-        {seg}
-      </span>
-    ) : (
-      seg
-    ),
-  );
+// ── Metric segment splitter (pure data, no JSX) ──────────────────────────────
+// Returns [{text, highlight}] — callers render the highlight spans in JSX.
+type Segment = { text: string; highlight: boolean };
+function splitMetrics(text: string): Segment[] {
+  const result: Segment[] = [];
+  let i = 0;
+  let plain = '';
+  while (i < text.length) {
+    const ch = text[i];
+    if (ch >= '0' && ch <= '9') {
+      if (plain) { result.push({ text: plain, highlight: false }); plain = ''; }
+      let num = '';
+      while (i < text.length && ((text[i] >= '0' && text[i] <= '9') || text[i] === ',' || text[i] === '.')) {
+        num += text[i]; i++;
+      }
+      while (i < text.length && 'kKmMbBxX+%'.indexOf(text[i]) !== -1) {
+        num += text[i]; i++;
+      }
+      result.push({ text: num, highlight: true });
+    } else {
+      plain += ch; i++;
+    }
+  }
+  if (plain) result.push({ text: plain, highlight: false });
+  return result;
 }
 
 // ── Typewriter body reveal ───────────────────────────────────────────────────
@@ -149,6 +157,7 @@ export default function StarModal({
   };
 
   const accent = node ? (node.accent ?? CATEGORY_ACCENT[node.category]) : '#ffffff';
+
   const chart = useMiniChart(node);
   const { typed, done } = useTypewriter(node?.body ?? '', node?.id, !reducedMotion);
   const { typed: typedPassion, done: donePassion } = useTypewriter(
@@ -503,10 +512,10 @@ export default function StarModal({
 
               {/* ── Panel · Narrative (sections for origin nodes) ──────────── */}
               {node.sections && node.sections.length > 0 && (
-                <div className="flex w-[420px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-                  <div className="space-y-7">
+                <div className="flex min-w-[320px] flex-1 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                  <div className="flex flex-1 flex-col gap-7">
                     {node.sections.map((section, index) => (
-                      <div key={index}>
+                      <div key={index} className={index === 0 ? 'flex-1' : ''}>
                         <div className="flex items-center gap-2.5 mb-2.5">
                           <span
                             className="font-mono text-[10px] font-black tracking-[0.3em]"
@@ -521,7 +530,7 @@ export default function StarModal({
                             {section.title}
                           </span>
                         </div>
-                        <p className="text-sm font-bold leading-tight text-white mb-1.5">
+                        <p className="text-sm font-bold leading-snug text-white mb-1.5">
                           {section.hook}
                         </p>
                         <p className="text-xs leading-relaxed text-white/60">
@@ -544,11 +553,11 @@ export default function StarModal({
                     >
                       ✦ {node.personal.labels?.passion ?? 'Passion'}
                     </span>
-                    <p className=”text-sm font-bold italic leading-relaxed text-white/85”>
-                      &ldquo;{donePassion ? renderHighlighted(typedPassion, accent) : typedPassion}
+                    <p className="text-sm font-bold italic leading-relaxed text-white/85">
+                      &ldquo;{donePassion ? splitMetrics(typedPassion).map((s, i) => s.highlight ? <span key={i} className="font-black" style={{ color: accent }}>{s.text}</span> : s.text) : typedPassion}
                       {!donePassion ? (
                         <span
-                          className=”ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic”
+                          className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic"
                           style={{ background: accent }}
                         />
                       ) : '”'}
@@ -572,7 +581,7 @@ export default function StarModal({
                             >
                               {String(i + 1).padStart(2, '0')}
                             </span>
-                            <span className="leading-relaxed">{renderHighlighted(line, accent)}</span>
+                            <span className="leading-relaxed">{splitMetrics(line).map((s, i) => s.highlight ? <span key={i} className="font-black" style={{ color: accent }}>{s.text}</span> : s.text)}</span>
                           </li>
                         ))}
                       </ul>
@@ -596,7 +605,7 @@ export default function StarModal({
                             >
                               {String(i + 1).padStart(2, '0')}
                             </span>
-                            <span className="leading-relaxed font-bold text-white/85">{renderHighlighted(line, accent)}</span>
+                            <span className="leading-relaxed font-bold text-white/85">{splitMetrics(line).map((s, i) => s.highlight ? <span key={i} className="font-black" style={{ color: accent }}>{s.text}</span> : s.text)}</span>
                           </li>
                         ))}
                       </ul>

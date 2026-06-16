@@ -56,7 +56,11 @@
       "Bash(echo \"exit:$?\")",
       "Bash(node *)",
       "Bash(npx tsx -e ' *)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(git stash *)",
+      "Bash(npm info *)",
+      "Bash(python3 *)"
     ]
   }
 }

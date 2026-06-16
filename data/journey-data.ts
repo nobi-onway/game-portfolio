@@ -288,7 +288,26 @@ const RAW_STAR_NODES: StarNode[] = [
     title: 'FPS Zombie Shooter',
     subtitle: 'Action · Student Project',
     role: 'Solo Developer · full ownership',
-    body: 'A wave-based zombie shooter built during the VTC Academy training program.',
+    sections: [
+      {
+        number: '01',
+        title: 'THE BRIEF',
+        hook: 'A wave-based shooter, built end to end',
+        subtitle: 'Capstone project during the VTC Academy program — a complete playable FPS taken from empty scene to finished build, solo.',
+      },
+      {
+        number: '02',
+        title: 'MY BUILD',
+        hook: 'Every system, my hands',
+        subtitle: 'Full ownership of the stack — enemy AI and wave spawning, weapon and shooting systems, game loop, and UI all designed and written solo.',
+      },
+      {
+        number: '03',
+        title: 'THE RESULT',
+        hook: 'My first game carried alone',
+        subtitle: 'Shipped as a complete, playable title — proof I could own a project across every discipline before stepping into a studio.',
+      },
+    ],
   },
   {
     id: 'knights',
@@ -303,7 +322,26 @@ const RAW_STAR_NODES: StarNode[] = [
     title: 'Knights vs Orcs',
     subtitle: 'Hyper Casual · 100k+ downloads',
     role: 'Gameplay Programmer @ Rocket Studio',
-    body: 'A hyper-casual hit reaching 100k+ downloads on the Play Store, built during the Rocket Studio era.',
+    sections: [
+      {
+        number: '01',
+        title: 'THE BRIEF',
+        hook: 'Mass-market mobile, fast iteration',
+        subtitle: 'A hyper-casual title at Rocket Studio built for broad appeal — simple to grasp, satisfying to play, tuned for rapid release cycles.',
+      },
+      {
+        number: '02',
+        title: 'MY BUILD',
+        hook: 'The moment-to-moment feel',
+        subtitle: 'Gameplay programmer on core mechanics, level progression, and the feedback loops that make a hyper-casual game feel good to hold.',
+      },
+      {
+        number: '03',
+        title: 'THE RESULT',
+        hook: '100k+ downloads on the Play Store',
+        subtitle: 'A genuine hit that reached six figures of installs — my first taste of building something the mass market actually played.',
+      },
+    ],
   },
   {
     id: 'thetan',
@@ -319,8 +357,26 @@ const RAW_STAR_NODES: StarNode[] = [
     title: 'Thetan Immortal',
     subtitle: 'PvP Action · Android / iOS',
     role: 'Game Developer @ Wolffun',
-    body: 'Large-scale Action PvP project that won the Google Play Best 2025 award.',
-    bullets: ['Advanced in-game UI system', 'Real-time API integration', 'Global localization system'],
+    sections: [
+      {
+        number: '01',
+        title: 'THE BRIEF',
+        hook: 'Large-scale Action PvP, live service',
+        subtitle: 'A cross-platform Action PvP title at Wolffun for Android and iOS — real-time multiplayer at scale, built to live and grow after launch.',
+      },
+      {
+        number: '02',
+        title: 'MY BUILD',
+        hook: 'UI, live data, and a global audience',
+        subtitle: 'Built the advanced in-game UI system, integrated real-time backend APIs, and shipped the global localization layer that opened the game to international players.',
+      },
+      {
+        number: '03',
+        title: 'THE RESULT',
+        hook: 'Google Play Best 2025',
+        subtitle: 'Recognised among Google Play\'s best of the year — the highest-profile title I\'ve shipped, and a benchmark for the standard I hold my work to.',
+      },
+    ],
     meta: [{ label: 'Award', value: 'Google Play Best 2025' }],
     links: [
       {
@@ -342,7 +398,26 @@ const RAW_STAR_NODES: StarNode[] = [
     title: 'Tile Travel',
     subtitle: 'Tile Match · Puzzle',
     role: 'Game Developer @ Wolffun',
-    body: 'A Triple Tile Match puzzle game with increasing difficulty and eye-catching graphics.',
+    sections: [
+      {
+        number: '01',
+        title: 'THE BRIEF',
+        hook: 'Triple Tile Match, refined',
+        subtitle: 'A polished tile-match puzzle at Wolffun — an escalating difficulty curve wrapped in eye-catching, casual-friendly visuals.',
+      },
+      {
+        number: '02',
+        title: 'MY BUILD',
+        hook: 'Match logic to difficulty curve',
+        subtitle: 'Gameplay and systems work — match resolution, the progression and difficulty tuning, and the UI flow that keeps the loop smooth and readable.',
+      },
+      {
+        number: '03',
+        title: 'THE RESULT',
+        hook: 'A shipped puzzle title in the portfolio',
+        subtitle: 'Released as part of Wolffun\'s casual line-up — sharpened my instinct for pacing, retention, and how small tuning decisions move player feel.',
+      },
+    ],
   },
   {
     id: 'dave-the-diver',
@@ -356,7 +431,26 @@ const RAW_STAR_NODES: StarNode[] = [
     image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1868140/header.jpg',
     title: 'Dave the Diver',
     subtitle: 'Adventure · Mint Rocket',
-    body: 'The game that redefined what a small team could achieve — handcrafted depth in every mechanic, every pixel, every detail.',
+    sections: [
+      {
+        number: '01',
+        title: 'THE WORK',
+        hook: 'What a small team can really do',
+        subtitle: 'Mint Rocket\'s genre-blending hit — handcrafted depth in every mechanic, every pixel, every detail. Not my project; my benchmark.',
+      },
+      {
+        number: '02',
+        title: 'WHY IT MATTERS',
+        hook: 'Polish as a design philosophy',
+        subtitle: 'It proved scope discipline and relentless craft beat raw team size — that a focused vision, fully realised, outshines a bigger, blunter one.',
+      },
+      {
+        number: '03',
+        title: 'WHAT I TOOK FROM IT',
+        hook: 'The bar I build toward',
+        subtitle: 'Every system I write, I ask whether it has this much care in it. It\'s the standard of feel and finish I\'m chasing in my own work.',
+      },
+    ],
     links: [{ label: 'View on Steam', href: 'https://store.steampowered.com/app/1868140/Dave_the_Diver/' }],
   },
 
@@ -385,11 +479,25 @@ const RAW_STAR_NODES: StarNode[] = [
     magnitude: 'sun',
     title: 'Unity Engine',
     subtitle: 'Primary Engine — the core everything orbits',
-    body: 'Shipped multiple titles on Unity across hyper-casual, puzzle and action PvP — from prototype to store release. Every other skill in this arsenal is a discipline I bring to bear inside the engine.',
-    bullets: [
-      'UGUI & responsive in-game UI',
-      'DOTween, Animation & timeline',
-      'Mobile build & release pipeline',
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'The engine behind every title shipped',
+        subtitle: 'Primary development environment across hyper-casual, puzzle, and action PvP — from prototype to store release, covering the full Unity toolchain.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'UI, animation, and build pipeline all in one',
+        subtitle: 'UGUI for responsive in-game interfaces, DOTween and Timeline for animation, and mobile build pipelines configured for both iOS and Android release.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Scene load times spiking on first open',
+        subtitle: 'Synchronous asset loading on startup blocked the main thread for 3+ seconds — migrated to async scene loading with a lightweight preloader, cutting perceived wait to under 1s.',
+      },
     ],
   },
 
@@ -405,16 +513,30 @@ const RAW_STAR_NODES: StarNode[] = [
     magnitude: 'major',
     title: 'C# & Gameplay Programming',
     subtitle: 'Core Language',
-    body: 'My primary language — clean, allocation-aware C# for gameplay systems, tooling and editor scripting in Unity.',
-    bullets: [
-      'Gameplay & systems architecture',
-      'Modern C# (LINQ, async, generics)',
-      'Custom Editor tooling',
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'A language built for discipline',
+        subtitle: 'Deep command of the C# type system, memory model, async/await, generics, and LINQ — the full toolkit beyond surface-level syntax.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'The language behind every system, loop, and tool',
+        subtitle: 'Applied daily inside Unity to architect core game loops, custom editor windows, and allocation-aware runtime code that holds up under pressure.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'GC spikes killing the frame budget',
+        subtitle: 'Tracked boxing allocations and closure captures via the Memory Profiler — shifted hot paths to structs, cached delegates, and pool-backed collections to eliminate mid-session hitches.',
+      },
     ],
   },
   {
     id: 'oop',
-    label: 'OOP & Patterns',
+    label: 'OOP & SOLID',
     category: 'skill',
     constellationId: 'arsenal',
     // Barb of the ↓ arrow — swept up toward engine, right side (60° off inward).
@@ -423,10 +545,28 @@ const RAW_STAR_NODES: StarNode[] = [
     magnitude: 'minor',
     labelDir: 'right',
     labelOnHover: true,
-    title: 'OOP & Design Patterns',
+    title: 'OOP & SOLID Principles',
     subtitle: 'Clean Architecture',
-    body: 'Designing maintainable gameplay systems on solid object-oriented foundations, reaching for the right pattern for the job.',
-    bullets: ['SOLID principles', 'State, Observer & Factory patterns', 'Decoupled, testable systems'],
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'Five principles, four pillars',
+        subtitle: 'SOLID (SRP, OCP, LSP, ISP, DIP) combined with OOP fundamentals — encapsulation, inheritance, polymorphism, and abstraction applied with intent.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Interface-driven, pattern-backed design',
+        subtitle: 'Gameplay systems wired through interfaces and event channels — State, Observer, and Factory patterns applied where they genuinely simplify the design, not just to tick a box.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'God classes and tangled coupling',
+        subtitle: 'Refactored a monolithic GameManager into focused SRP controllers injected through interfaces — cut the blast radius of changes and made isolated testing possible without mocking the world.',
+      },
+    ],
   },
   {
     id: 'optimization',
@@ -441,8 +581,26 @@ const RAW_STAR_NODES: StarNode[] = [
     labelOnHover: true,
     title: 'Performance Optimization',
     subtitle: 'Mobile-first',
-    body: 'Profiling and optimising for low-end mobile — zero-alloc patterns, GC pressure, memory and frame budget.',
-    bullets: ['Unity Profiler & Frame Debugger', 'Zero-alloc & GC management', 'Draw-call & batching control'],
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'Profile first, optimise second',
+        subtitle: 'Unity Profiler, Frame Debugger, and Memory Profiler as primary instruments — CPU, GPU, and memory budgets measured and baselined before any change is made.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Every frame earned — pooling, batching, zero-alloc on hot paths',
+        subtitle: 'Object pooling for high-frequency spawns, struct-based data on hot paths, atlas packing and dynamic batching to keep draw-calls within the mobile budget on every build.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Frame spikes on low-end Android',
+        subtitle: 'Profiler pinned a recurring spike to a foreach on List<T> — iterator allocation every frame across 500+ objects. Replaced with index loops and pooled lists; spike dropped to zero.',
+      },
+    ],
   },
 
   // ── Core ↙ : Engine scripting & architecture ─────────────────────────────
@@ -458,8 +616,26 @@ const RAW_STAR_NODES: StarNode[] = [
     labelDir: 'left',
     title: 'Scripting & Architecture',
     subtitle: 'Unity Runtime Model',
-    body: "Structuring a game's runtime around Unity's component model and data-driven content for flexible, scalable systems.",
-    bullets: ['Component-driven design', 'Data-driven content', 'Event & messaging systems'],
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: "Unity's runtime model, understood end to end",
+        subtitle: 'Component-driven architecture, event systems, and data-driven content — the skeleton every game system builds on top of.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Every feature starts as a clean component',
+        subtitle: 'Gameplay loops, managers, and content pipelines designed around Unity\'s runtime — separation of concerns baked in from the first line.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Spaghetti scene hierarchies with no ownership',
+        subtitle: 'Inherited a scene with logic scattered across 40 MonoBehaviours — restructured around event-driven messaging and explicit manager boundaries.',
+      },
+    ],
   },
   {
     id: 'mono',
@@ -474,8 +650,26 @@ const RAW_STAR_NODES: StarNode[] = [
     labelOnHover: true,
     title: 'MonoBehaviour & Lifecycle',
     subtitle: 'Component Model',
-    body: 'Mastering the Unity execution order and component lifecycle to build predictable, frame-efficient gameplay logic.',
-    bullets: ['Update / FixedUpdate budgeting', 'Coroutines & lifecycle hooks', 'Custom component design'],
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: "Precision control over when code runs",
+        subtitle: 'Deep understanding of the Update loop, FixedUpdate timing, coroutine scheduling, and lifecycle hooks — no surprises in execution order.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Frame-budget aware components, every time',
+        subtitle: 'Update budget tracking, coroutine-based async flows, and lifecycle-safe teardown patterns applied across every component written.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Init dependencies silently order-dependent',
+        subtitle: 'Awake/Start chains were failing based on scene load order — replaced with explicit init sequences and dependency injection to guarantee safe startup every time.',
+      },
+    ],
   },
   {
     id: 'data',
@@ -490,8 +684,26 @@ const RAW_STAR_NODES: StarNode[] = [
     labelOnHover: true,
     title: 'ScriptableObject & Addressables',
     subtitle: 'Data-Driven Content',
-    body: 'Decoupling configuration and content from code with ScriptableObjects, and streaming assets on demand via Addressables.',
-    bullets: ['ScriptableObject architecture', 'Addressables & asset streaming', 'Designer-friendly tooling'],
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'Configuration lives in assets, not in code',
+        subtitle: 'ScriptableObjects as runtime data containers, Addressables for on-demand streaming — decoupling content from logic at the architecture level.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Designers iterate without touching code',
+        subtitle: 'Game balance, item configs, and level definitions authored as ScriptableObjects — assets load only when needed via Addressable groups.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'APK size ballooning on mobile builds',
+        subtitle: 'Refactored asset references to Addressable groups — reduced initial package size and cut load time by streaming only what the current scene needs.',
+      },
+    ],
   },
 
   // ── Core ↘ : Rendering & graphics ────────────────────────────────────────
@@ -507,12 +719,30 @@ const RAW_STAR_NODES: StarNode[] = [
     labelDir: 'right',
     title: 'Rendering & Graphics',
     subtitle: 'Visual Pipeline',
-    body: 'Driving the look of the game through the URP pipeline — from material authoring to lighting and post-processing on mobile.',
-    bullets: ['URP rendering pipeline', 'Lighting & materials', 'Mobile-friendly rendering'],
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'The full URP pipeline, understood end to end',
+        subtitle: 'Universal Render Pipeline — lighting and shadow passes, post-processing stack, and where mobile GPU constraints bite hardest.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Visual target met on a tight GPU budget',
+        subtitle: 'Lighting rigs, material authoring, and post-processing tuned to hold frame rate on mid-range Android — quality where it reads, cut where it doesn\'t.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Overdraw killing fill rate on old devices',
+        subtitle: 'UI and particle layers stacking to 8× overdraw — culled invisible layers, switched particles to opaque cutout where possible; fill rate dropped back within budget.',
+      },
+    ],
   },
   {
     id: 'vfx',
-    label: 'Real-time VFX',
+    label: 'Render Pipeline',
     category: 'skill',
     constellationId: 'arsenal',
     // Barb of the ↗ arrow — swept toward engine (60° off inward axis).
@@ -521,10 +751,28 @@ const RAW_STAR_NODES: StarNode[] = [
     magnitude: 'minor',
     labelDir: 'right',
     labelOnHover: true,
-    title: 'VFX & Real-time Effects',
-    subtitle: 'Game Feel',
-    body: 'Particle systems and shader-driven effects that make combat and UI feel responsive and juicy.',
-    bullets: ['Shuriken & VFX Graph', 'Shader-driven effects', 'Juice & game-feel polish'],
+    title: 'Render Pipeline',
+    subtitle: 'Built-in · URP · HDRP',
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'Three pipelines, one decision framework',
+        subtitle: 'Built-in for legacy compatibility, URP for mobile and cross-platform, HDRP for high-fidelity PC/console — knowing when to pick each and what each costs.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Shipped on URP, explored HDRP',
+        subtitle: 'Production work on URP — render feature authoring, custom passes, and post-processing stacks tuned for mobile. HDRP explored for lighting fidelity and volumetrics.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Pipeline mismatch breaking shaders on migration',
+        subtitle: 'Migrating a Built-in project to URP caused shader stripping and broken materials across 80+ assets — ran the upgrade utility, manually fixed incompatible custom shaders, and documented the delta for the team.',
+      },
+    ],
   },
   {
     id: 'shaders',
@@ -538,9 +786,27 @@ const RAW_STAR_NODES: StarNode[] = [
     labelDir: 'top',
     labelOnHover: true,
     title: 'Shaders & Graphics',
-    subtitle: 'Technical Art focus',
-    body: 'Where I am heading: authoring HLSL and Shader Graph for stylised, performant looks on mobile URP.',
-    bullets: ['HLSL & Shader Graph', 'Stylised lighting', 'Post-processing & screen FX'],
+    subtitle: 'Technical Art Focus',
+    sections: [
+      {
+        number: '01',
+        title: 'OVERVIEW',
+        hook: 'Writing the GPU side of the render pipeline',
+        subtitle: 'HLSL and Shader Graph for stylised, performant visuals — vertex and fragment stages, URP render passes, and where GPU cost accumulates on mobile.',
+      },
+      {
+        number: '02',
+        title: 'IN PRACTICE',
+        hook: 'Custom looks that don\'t cost the frame budget',
+        subtitle: 'Outline shaders, dissolve transitions, and screen-space effects authored in Shader Graph — every effect validated against mobile GPU cost before shipping.',
+      },
+      {
+        number: '03',
+        title: 'PROBLEM → SOLUTION',
+        hook: 'Shader complexity spiking on old Mali GPUs',
+        subtitle: 'A stylised water shader tanked frame rate on older devices — refactored to a simpler UV-scroll approach; visual quality preserved, GPU cost cut by ~60%.',
+      },
+    ],
   },
 
   // ── The Horizon (future) ───────────────────────────────────────────────────
@@ -554,8 +820,26 @@ const RAW_STAR_NODES: StarNode[] = [
     magnitude: 'major',
     title: 'The Next Chapter — Technical Artist',
     subtitle: 'Uncharted',
-    body: 'Aiming to master the graphics pipeline and custom shaders, focusing on performance optimization to deliver AAA-quality experiences on mobile.',
-    bullets: ['Shader coding', 'VFX pipeline', 'Performance optimization'],
+    sections: [
+      {
+        number: '01',
+        title: 'NORTH STAR',
+        hook: 'The bridge between art and engineering',
+        subtitle: 'Becoming a Technical Artist — owning the graphics pipeline and custom shaders, the discipline where visual ambition meets the hard limits of performance.',
+      },
+      {
+        number: '02',
+        title: 'BUILDING TOWARD',
+        hook: 'Already laying the groundwork',
+        subtitle: 'Deepening HLSL and Shader Graph, studying the URP render pipeline, and sharpening profiling instincts — turning today\'s rendering skills into tomorrow\'s craft.',
+      },
+      {
+        number: '03',
+        title: 'THE BET',
+        hook: 'AAA-quality visuals on mobile hardware',
+        subtitle: 'The long game: delivering console-grade looks within a phone\'s budget — where the constraint is the craft, and the payoff is experiences nobody expected to run.',
+      },
+    ],
   },
 ];
 
