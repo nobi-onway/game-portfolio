@@ -381,7 +381,7 @@ const RAW_STAR_NODES: StarNode[] = [
     links: [
       {
         label: 'View on Google Play',
-        href: 'https://play.google.com/store/apps/details?id=com.legendarylabs.tile.match.travel.explorer.puzzle.game.relax&hl=en',
+        href: 'https://play.google.com/store/apps/details?id=com.wolffun.thetanimmortal&hl=en',
       },
     ],
   },
@@ -418,40 +418,44 @@ const RAW_STAR_NODES: StarNode[] = [
         subtitle: 'Released as part of Wolffun\'s casual line-up — sharpened my instinct for pacing, retention, and how small tuning decisions move player feel.',
       },
     ],
+    links: [
+      {
+        label: 'View on Google Play',
+        href: 'https://play.google.com/store/apps/details?id=com.legendarylabs.tile.match.travel.explorer.puzzle.game.relax&hl=en',
+      },
+    ],
   },
   {
     id: 'dave-the-diver',
-    label: 'Dave the Diver',
+    label: 'RPG Adventure',
     category: 'project',
     constellationId: 'pantheon',
     x: 0.63,
     y: 0.55,
     magnitude: 'minor',
     accent: '#38BDF8',
-    image: 'https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1868140/header.jpg',
-    title: 'Dave the Diver',
-    subtitle: 'Adventure · Mint Rocket',
+    title: 'RPG Adventure',
+    subtitle: 'RPG · Adventure',
     sections: [
       {
         number: '01',
-        title: 'THE WORK',
-        hook: 'What a small team can really do',
-        subtitle: 'Mint Rocket\'s genre-blending hit — handcrafted depth in every mechanic, every pixel, every detail. Not my project; my benchmark.',
+        title: 'THE BRIEF',
+        hook: 'An RPG built around its systems, not its set pieces',
+        subtitle: 'An adventure RPG where progression, combat, and economy all had to interlock cleanly — the challenge was architecture as much as gameplay.',
       },
       {
         number: '02',
-        title: 'WHY IT MATTERS',
-        hook: 'Polish as a design philosophy',
-        subtitle: 'It proved scope discipline and relentless craft beat raw team size — that a focused vision, fully realised, outshines a bigger, blunter one.',
+        title: 'MY BUILD',
+        hook: 'System design over scripted features',
+        subtitle: 'Designed the underlying systems — data-driven stat and skill frameworks, modular quest and dialogue state machines, inventory/crafting rules, and save/load architecture — so new content could be added without touching core code.',
       },
       {
         number: '03',
-        title: 'WHAT I TOOK FROM IT',
-        hook: 'The bar I build toward',
-        subtitle: 'Every system I write, I ask whether it has this much care in it. It\'s the standard of feel and finish I\'m chasing in my own work.',
+        title: 'THE RESULT',
+        hook: 'A foundation that scales',
+        subtitle: 'A reusable system layer that let designers extend the game through data rather than code — sharpened how I think about long-term maintainability over one-off features.',
       },
     ],
-    links: [{ label: 'View on Steam', href: 'https://store.steampowered.com/app/1868140/Dave_the_Diver/' }],
   },
 
   // ── The Arsenal (Unity logo) ────────────────────────────────────────────────
@@ -461,9 +465,9 @@ const RAW_STAR_NODES: StarNode[] = [
   // each barb sitting 60° off the inward (toward-engine) axis.
   // (The whole arsenal is flipped vertically about the engine.)
   //
-  // Coords are built in true-angle space, then x-offsets are pre-compressed
-  // (~÷1.75, the canvas width:height ratio) so the SVG's preserveAspectRatio
-  // "none" stretch resolves them to a real 120° spread with 120°/240° arrowheads.
+  // Coords are authored "steep" (arms ~135°); applyConstellationLayout then
+  // pre-squeezes the Arsenal x by ARSENAL_LOGO_STRETCH × SKY_HEIGHT_RATIO so that
+  // the box's wide aspect stretches them back to a real even 120° spread.
   //   center : unity
   //   arm ↓  : csharp     → oop, optimization   (barbs swept up toward engine)
   //   arm ↖  : scripting  → mono, data          (barbs swept toward engine)
@@ -860,9 +864,18 @@ const CONSTELLATION_ORDER = ['origin', 'forge', 'studios', 'arsenal', 'pantheon'
 // galaxy is intentionally wider than the screen so the chapters breathe and the
 // canvas scrolls on X.
 export const SKY_WIDTH_REM = 120;
-// Width the Arsenal "Unity logo" was authored against. Its x-offsets are squeezed
-// by BASE/WIDTH so the logo keeps its aspect when the canvas is stretched wider.
-const SKY_BASE_REM = 64;
+
+// The sky box's locked pixel aspect (height ÷ width). ConstellationSky pins the
+// constellation box to width × this, so every shape keeps the same proportions
+// on any screen (boxRatio = width:height = 1 / SKY_HEIGHT_RATIO).
+export const SKY_HEIGHT_RATIO = 0.5333;
+
+// The Arsenal stars are authored as a Unity-logo "Y": three arms that only read
+// as an even 120° star when their x is stretched by this factor relative to y in
+// final PIXELS (verified from the geometry — 1.75 gives 120°/120° and equal arm
+// lengths). The rendered x-stretch is xSqueeze × boxRatio, so to hit this target
+// the Arsenal pre-squeeze must be ARSENAL_LOGO_STRETCH × SKY_HEIGHT_RATIO.
+const ARSENAL_LOGO_STRETCH = 1.75;
 
 // How tightly each cluster is packed (1 = as authored). Sub-1 buys gap between
 // chapters while keeping stars within a chapter comfortably readable.
@@ -886,9 +899,10 @@ function applyConstellationLayout(nodes: StarNode[]): StarNode[] {
     const members = byId.get(id) ?? [];
     const cy = members.reduce((sum, n) => sum + n.y, 0) / members.length;
     const cx = members.reduce((sum, n) => sum + n.x, 0) / members.length;
-    // Arsenal alone is squeezed horizontally to hold the Unity-logo aspect ratio
-    // once the SVG/percentage layout stretches it across the wide canvas.
-    const xSqueeze = id === 'arsenal' ? SKY_BASE_REM / SKY_WIDTH_REM : 1;
+    // Arsenal alone is pre-squeezed on x so that, once the box's wide aspect
+    // stretches it back out, the Unity-logo arms land at an even 120°.
+    // (xSqueeze × boxRatio = ARSENAL_LOGO_STRETCH; boxRatio = 1 / SKY_HEIGHT_RATIO.)
+    const xSqueeze = id === 'arsenal' ? ARSENAL_LOGO_STRETCH * SKY_HEIGHT_RATIO : 1;
     const scale = INTERNAL_SCALE * (CLUSTER_SPACING[id] ?? 1);
     const offsets = members.map(node => ({
       node,

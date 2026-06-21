@@ -59,6 +59,8 @@ function useMiniChart(node: StarNode | null) {
   }, [node]);
 }
 
+type MiniChart = NonNullable<ReturnType<typeof useMiniChart>>;
+
 // ── Metric segment splitter (pure data, no JSX) ──────────────────────────────
 // Returns [{text, highlight}] — callers render the highlight spans in JSX.
 type Segment = { text: string; highlight: boolean };
@@ -84,6 +86,19 @@ function splitMetrics(text: string): Segment[] {
   }
   if (plain) result.push({ text: plain, highlight: false });
   return result;
+}
+
+// Render a metric-highlighted line as JSX (numbers get the accent treatment).
+function renderMetrics(text: string, accent: string) {
+  return splitMetrics(text).map((s, i) =>
+    s.highlight ? (
+      <span key={i} className="font-black" style={{ color: accent }}>
+        {s.text}
+      </span>
+    ) : (
+      s.text
+    ),
+  );
 }
 
 // ── Typewriter body reveal ───────────────────────────────────────────────────
@@ -116,6 +131,71 @@ function useTypewriter(text: string, key: string | undefined, enabled: boolean) 
   return { typed, done };
 }
 
+// ── Constellation chart banner (shared) ──────────────────────────────────────
+function ChartBanner({
+  chart,
+  accent,
+  reducedMotion,
+}: {
+  chart: MiniChart;
+  accent: string;
+  reducedMotion: boolean;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/40">
+      <svg
+        viewBox="0 0 200 64"
+        preserveAspectRatio="xMidYMid meet"
+        className="block aspect-[25/8] w-full"
+        aria-hidden="true"
+      >
+        {chart.lines.map((edge, index) => (
+          <line
+            key={index}
+            x1={edge.a.cx}
+            y1={edge.a.cy}
+            x2={edge.b.cx}
+            y2={edge.b.cy}
+            stroke={accent}
+            strokeWidth={0.5}
+            strokeOpacity={0.4}
+          />
+        ))}
+        {chart.points.map(point => (
+          <g key={point.id}>
+            {point.active && (
+              <circle
+                cx={point.cx}
+                cy={point.cy}
+                r={4}
+                fill="none"
+                stroke={accent}
+                strokeWidth={0.75}
+                opacity={0.7}
+              >
+                {!reducedMotion && (
+                  <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" />
+                )}
+              </circle>
+            )}
+            <circle
+              cx={point.cx}
+              cy={point.cy}
+              r={point.active ? 2.2 : 1.3}
+              fill={point.active ? accent : '#ffffff'}
+              fillOpacity={point.active ? 1 : 0.45}
+              style={point.active ? { filter: `drop-shadow(0 0 3px ${accent})` } : undefined}
+            />
+          </g>
+        ))}
+      </svg>
+      <span className="absolute bottom-1.5 right-2.5 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/40">
+        {chart.name}
+      </span>
+    </div>
+  );
+}
+
 export default function StarModal({
   node,
   onClose,
@@ -130,9 +210,10 @@ export default function StarModal({
   const reducedMotion = usePrefersReducedMotion();
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
-  // Horizontal reading rail — the body lays out in side-by-side panels and the
-  // mouse wheel drives the X axis so a vertical scroll reads left → right.
-  const railRef = useRef<HTMLDivElement>(null);
+  // Two layouts: Pantheon (project) entries use a vertical image-backdrop column;
+  // every other constellation keeps the horizontal reading rail.
+  const scrollRef = useRef<HTMLDivElement>(null); // vertical column (Pantheon)
+  const railRef = useRef<HTMLDivElement>(null); // horizontal rail (others)
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -145,11 +226,13 @@ export default function StarModal({
     return () => window.removeEventListener('keydown', handler);
   }, [onClose, lightboxSrc]);
 
-  // Reset the rail to the start whenever a new star is opened.
+  // Reset both scroll axes to the start whenever a new star is opened.
   useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
     if (railRef.current) railRef.current.scrollLeft = 0;
   }, [node?.id]);
 
+  // Rail wheel → drive the X axis so a vertical scroll reads left → right.
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     const rail = railRef.current;
     if (!rail || event.deltaY === 0) return;
@@ -166,12 +249,26 @@ export default function StarModal({
     !reducedMotion,
   );
 
+  const isPantheon = node?.constellationId === 'pantheon';
+  // Pantheon hero image; education nodes keep their certificate as a zoom card.
+  const heroImage = node && node.category !== 'education' ? node.image : undefined;
+
+  // Section header chip ("✦ LABEL") reused across the personal blocks.
+  const blockLabel = (text: string) => (
+    <span
+      className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+      style={{ color: accent }}
+    >
+      {text}
+    </span>
+  );
+
   return (
     <AnimatePresence>
       {node && chart && (
         <motion.div
           key="star-modal"
-          className="absolute inset-0 z-[60] flex items-center justify-center px-14 py-4 lg:px-16"
+          className="absolute inset-0 z-[60] flex items-center justify-center px-12 py-4 lg:px-16"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -212,7 +309,11 @@ export default function StarModal({
             role="dialog"
             aria-modal="true"
             aria-label={node.title}
-            className="glass-card relative w-full max-w-5xl overflow-hidden"
+            className={
+              isPantheon
+                ? 'glass-card relative flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden xl:max-w-3xl'
+                : 'glass-card relative w-fit max-w-5xl overflow-hidden xl:max-w-6xl 2xl:max-w-[88rem]'
+            }
             style={{ borderColor: `${accent}55` }}
             initial={{ opacity: 0, scale: 0.92, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -224,501 +325,693 @@ export default function StarModal({
               corner => (
                 <span
                   key={corner}
-                  className={`pointer-events-none absolute z-20 size-4 ${corner}`}
+                  className={`pointer-events-none absolute z-30 size-4 ${corner}`}
                   style={{ borderColor: `${accent}aa` }}
                 />
               ),
             )}
 
             <div
-              className="pointer-events-none absolute -top-16 right-0 size-40 rounded-full blur-3xl"
+              className="pointer-events-none absolute -top-16 right-0 z-0 size-40 rounded-full blur-3xl"
               style={{ background: accent, opacity: 0.18 }}
             />
 
-            {/* ── Header bar ─────────────────────────────────────────────── */}
-            <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3">
-              <div
-                className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.28em]"
-                style={{ color: accent }}
-              >
-                <span
-                  className={`size-1.5 rounded-full ${reducedMotion ? '' : 'animate-pulse'}`}
-                  style={{ background: accent, boxShadow: `0 0 8px ${accent}` }}
-                />
-                Observation Log
-              </div>
-              <button
-                type="button"
-                aria-label="Close"
-                onClick={onClose}
-                className="rounded-full border border-white/10 bg-black/40 p-1.5 text-white/70 transition-colors hover:text-white"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            {/* ── Horizontal reading rail ───────────────────────────────────
-                Panels sit side-by-side; the wheel scrolls along X so a normal
-                vertical scroll reads the entry left → right. */}
-            <div
-              ref={railRef}
-              onWheel={handleWheel}
-              className="no-scrollbar relative flex h-[58vh] max-h-[480px] overflow-x-auto overflow-y-hidden lg:h-[62vh] lg:max-h-[560px]"
-            >
-              {/* ── Panel · Identity ─────────────────────────────────────── */}
-              <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto px-6 py-6">
-              {/* ── Constellation chart banner ───────────────────────────── */}
-              <div className="relative overflow-hidden rounded-lg border border-white/10 bg-black/40">
-                <svg
-                  viewBox="0 0 200 64"
-                  preserveAspectRatio="xMidYMid meet"
-                  className="block aspect-[25/8] w-full"
-                  aria-hidden="true"
-                >
-                  {chart.lines.map((edge, index) => (
-                    <line
-                      key={index}
-                      x1={edge.a.cx}
-                      y1={edge.a.cy}
-                      x2={edge.b.cx}
-                      y2={edge.b.cy}
-                      stroke={accent}
-                      strokeWidth={0.5}
-                      strokeOpacity={0.4}
-                    />
-                  ))}
-                  {chart.points.map(point => (
-                    <g key={point.id}>
-                      {point.active && (
-                        <circle
-                          cx={point.cx}
-                          cy={point.cy}
-                          r={4}
-                          fill="none"
-                          stroke={accent}
-                          strokeWidth={0.75}
-                          opacity={0.7}
-                        >
-                          {!reducedMotion && (
-                            <animate
-                              attributeName="r"
-                              values="3;6;3"
-                              dur="2s"
-                              repeatCount="indefinite"
-                            />
-                          )}
-                        </circle>
-                      )}
-                      <circle
-                        cx={point.cx}
-                        cy={point.cy}
-                        r={point.active ? 2.2 : 1.3}
-                        fill={point.active ? accent : '#ffffff'}
-                        fillOpacity={point.active ? 1 : 0.45}
-                        style={point.active ? { filter: `drop-shadow(0 0 3px ${accent})` } : undefined}
-                      />
-                    </g>
-                  ))}
-                </svg>
-                <span className="absolute bottom-1.5 right-2.5 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/40">
-                  {chart.name}
-                </span>
-              </div>
-
-              {/* ── Identity ─────────────────────────────────────────────── */}
-              <div className="mt-5 flex items-center gap-2">
-                <span
-                  className="size-2 rounded-full"
-                  style={{ background: accent, boxShadow: `0 0 10px ${accent}` }}
-                />
-                <span
-                  className="text-[10px] font-black uppercase tracking-[0.3em]"
-                  style={{ color: accent }}
-                >
-                  {CATEGORY_LABEL[node.category]}
-                </span>
-              </div>
-
-              <h3 className="mt-2 text-2xl font-black leading-tight tracking-tight text-white md:text-3xl">
-                {node.title}
-              </h3>
-              {node.subtitle && (
-                <p className="mt-2 font-mono text-xs font-bold uppercase tracking-[0.15em] text-white/50">
-                  {node.subtitle}
-                </p>
-              )}
-
-              {/* ── My role ──────────────────────────────────────────────────
-                  Makes the personal contribution explicit on team/studio work. */}
-              {node.role && (
-                <div
-                  className="mt-4 flex items-center gap-2.5 rounded-lg border-l-2 bg-white/[0.03] px-3 py-2"
-                  style={{ borderColor: accent }}
-                >
-                  <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-white/35">
-                    My role
-                  </span>
-                  <span className="text-xs font-bold text-white/85">{node.role}</span>
-                </div>
-              )}
-
-              {/* Studio website — lives inside the identity card, not a separate panel. */}
-              {node.category === 'studio' && node.links && node.links.length > 0 && (
-                <div className="mt-5 flex flex-col gap-2">
-                  {node.links.map(link => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center gap-3 overflow-hidden rounded-lg border px-4 py-3 text-xs font-bold transition-all duration-300 hover:scale-[1.02]"
-                      style={{
-                        borderColor: `${accent}55`,
-                        background: `linear-gradient(135deg, ${accent}18 0%, rgba(255,255,255,0.02) 100%)`,
-                        color: accent,
-                        boxShadow: `0 0 28px -12px ${accent}`,
-                      }}
-                    >
-                      {/* Sweep glow on hover */}
-                      <div
-                        className="pointer-events-none absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
-                        style={{ background: `linear-gradient(90deg, transparent, ${accent}25, transparent)` }}
-                      />
-                      {/* Top edge highlight */}
-                      <div
-                        className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                        style={{ background: `linear-gradient(90deg, transparent, ${accent}88, transparent)` }}
-                      />
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={
-                          link.icon ??
-                          `https://www.google.com/s2/favicons?domain=${new URL(link.href).hostname}&sz=64`
-                        }
-                        alt=""
-                        aria-hidden="true"
-                        className={
-                          link.icon
-                            ? 'relative h-4 w-auto max-w-[72px] shrink-0 object-contain'
-                            : 'relative size-4 shrink-0 rounded-sm bg-white/90 object-contain p-px'
-                        }
-                        loading="lazy"
-                      />
-                      <span className="relative flex-1 tracking-wide">{link.label}</span>
-                      <ExternalLink className="relative size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
-                    </a>
-                  ))}
-                </div>
-              )}
-
-              {node.category === 'education' && node.image && (
-                <button
-                  type="button"
-                  onClick={() => setLightboxSrc(node.image!)}
-                  className="group relative mt-5 w-full cursor-zoom-in rounded-lg border bg-black/40 p-3 transition-colors duration-300"
-                  style={{ borderColor: `${accent}30` }}
-                >
-                  {/* Corner brackets */}
-                  {(['left-1.5 top-1.5 border-l border-t', 'right-1.5 top-1.5 border-r border-t', 'left-1.5 bottom-1.5 border-l border-b', 'right-1.5 bottom-1.5 border-r border-b'] as const).map((c, i) => (
-                    <span
-                      key={i}
-                      className={`pointer-events-none absolute size-2.5 transition-opacity duration-300 group-hover:opacity-100 opacity-50 ${c}`}
-                      style={{ borderColor: accent }}
-                    />
-                  ))}
-                  {/* Accent glow on hover */}
+            {isPantheon ? (
+              /* ══ Pantheon layout — image backdrop + vertical content ══════ */
+              <>
+                {/* Header bar (overlay — floats above the hero) */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between bg-gradient-to-b from-black/70 to-transparent px-5 py-3">
                   <div
-                    className="pointer-events-none absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                    style={{ boxShadow: `inset 0 0 24px -8px ${accent}33` }}
-                  />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={node.image}
-                    alt={node.title}
-                    className="relative mx-auto h-20 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                </button>
-              )}
-              </div>
-              {/* ── /Panel · Identity ────────────────────────────────────── */}
-
-              {/* ── Panel · Spectral plate (hero image) ──────────────────── */}
-              {node.image && node.category !== 'education' && (
-                <div className="w-[300px] shrink-0 border-l border-white/10 px-6 py-6">
-                  <div className="relative h-full overflow-hidden rounded-lg border border-white/10">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={node.image}
-                      alt={node.title}
-                      className="size-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
-                    <div
-                      className="pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
-                      style={{
-                        backgroundImage:
-                          'repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 1px, transparent 1px, transparent 3px)',
-                      }}
-                    />
-                    <div
-                      className="pointer-events-none absolute inset-0"
-                      style={{ boxShadow: `inset 0 -40px 60px -20px ${accent}55` }}
-                    />
-                    <span className="absolute left-2 top-2 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/55">
-                      ▣ Spectral Plate
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* ── Panel · Log (body + bullets) ─────────────────────────── */}
-              {(!!node.body || !!node.bullets) && (
-              <div className="flex w-[380px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-              {node.body && (
-                <p className="min-h-[3.5rem] text-sm leading-relaxed text-white/70">
-                  <span className="mr-1 font-mono" style={{ color: accent }}>
-                    ›
-                  </span>
-                  {typed}
-                  {!done && (
-                    <span
-                      className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse"
-                      style={{ background: accent }}
-                    />
-                  )}
-                </p>
-              )}
-
-              {node.bullets && (
-                <ul className="mt-5 space-y-2.5 border-t border-white/5 pt-5">
-                  {node.bullets.map((bullet, index) => (
-                    <li key={index} className="flex items-start gap-3 text-xs text-white/70">
-                      <span
-                        className="mt-px font-mono text-[10px] font-bold tabular-nums"
-                        style={{ color: accent }}
-                      >
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <span className="leading-relaxed">{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              </div>
-              )}
-              {/* ── /Panel · Log ─────────────────────────────────────────── */}
-
-              {/* ── Panel · Narrative (sections for origin nodes) ──────────── */}
-              {node.sections && node.sections.length > 0 && (
-                <div className="flex min-w-[320px] flex-1 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-                  <div className="flex flex-1 flex-col gap-7">
-                    {node.sections.map((section, index) => (
-                      <div key={index} className={index === 0 ? 'flex-1' : ''}>
-                        <div className="flex items-center gap-2.5 mb-2.5">
-                          <span
-                            className="font-mono text-[10px] font-black tracking-[0.3em]"
-                            style={{ color: accent }}
-                          >
-                            {section.number}
-                          </span>
-                          <span
-                            className="text-xs font-bold uppercase tracking-[0.2em]"
-                            style={{ color: accent }}
-                          >
-                            {section.title}
-                          </span>
-                        </div>
-                        <p className="text-sm font-bold leading-snug text-white mb-1.5">
-                          {section.hook}
-                        </p>
-                        <p className="text-xs leading-relaxed text-white/60">
-                          {section.subtitle}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {/* ── /Panel · Narrative ───────────────────────────────────── */}
-
-              {/* ── Panel · Personal (Passion + Mindset) ────────────────── */}
-              {node.personal?.passion && (
-                <div className="flex min-w-[380px] flex-1 flex-col gap-7 overflow-y-auto border-l border-white/10 px-6 py-6">
-                  <div>
-                    <span
-                      className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
-                      style={{ color: accent }}
-                    >
-                      ✦ {node.personal.labels?.passion ?? 'Passion'}
-                    </span>
-                    <p className="text-sm font-bold italic leading-relaxed text-white/85">
-                      &ldquo;{donePassion ? splitMetrics(typedPassion).map((s, i) => s.highlight ? <span key={i} className="font-black" style={{ color: accent }}>{s.text}</span> : s.text) : typedPassion}
-                      {!donePassion ? (
-                        <span
-                          className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic"
-                          style={{ background: accent }}
-                        />
-                      ) : '”'}
-                    </p>
-                  </div>
-
-                  {node.personal.mindset && node.personal.mindset.length > 0 && (
-                    <div>
-                      <span
-                        className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
-                        style={{ color: accent }}
-                      >
-                        ✦ {node.personal.labels?.mindset ?? 'Mindset'}
-                      </span>
-                      <ul className="space-y-2">
-                        {node.personal.mindset.map((line, i) => (
-                          <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
-                            <span
-                              className="shrink-0 font-mono text-[10px] font-black tabular-nums"
-                              style={{ color: accent }}
-                            >
-                              {String(i + 1).padStart(2, '0')}
-                            </span>
-                            <span className="leading-relaxed">{splitMetrics(line).map((s, i) => s.highlight ? <span key={i} className="font-black" style={{ color: accent }}>{s.text}</span> : s.text)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {node.personal.direction && node.personal.direction.length > 0 && (
-                    <div>
-                      <span
-                        className="mb-3 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
-                        style={{ color: accent }}
-                      >
-                        ✦ {node.personal.labels?.direction ?? 'Direction'}
-                      </span>
-                      <ul className="space-y-2">
-                        {node.personal.direction.map((line, i) => (
-                          <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
-                            <span
-                              className="shrink-0 font-mono text-[10px] font-black tabular-nums"
-                              style={{ color: accent }}
-                            >
-                              {String(i + 1).padStart(2, '0')}
-                            </span>
-                            <span className="leading-relaxed font-bold text-white/85">{splitMetrics(line).map((s, i) => s.highlight ? <span key={i} className="font-black" style={{ color: accent }}>{s.text}</span> : s.text)}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-              {/* ── /Panel · Personal ────────────────────────────────────── */}
-
-              {/* ── Panel · Inspirations ─────────────────────────────────── */}
-              {node.personal?.inspirations && node.personal.inspirations.length > 0 && (
-                <div className="flex w-[360px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-                  <span
-                    className="mb-4 block font-mono text-[10px] font-black uppercase tracking-[0.3em]"
+                    className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.28em]"
                     style={{ color: accent }}
                   >
-                    ✦ Inspirations
-                  </span>
-                  <div className="flex flex-col gap-2.5">
-                    {node.personal.inspirations.map((item, i) => {
-                      const Tag = item.link ? 'a' : 'div';
-                      const linkProps = item.link
-                        ? { href: item.link, target: '_blank', rel: 'noopener noreferrer' }
-                        : {};
-                      return (
-                        <Tag
-                          key={i}
-                          {...linkProps}
-                          className={`group relative overflow-hidden rounded-lg border bg-white/[0.02] px-3 py-2.5 transition-all hover:bg-white/[0.05] ${item.link ? 'cursor-pointer' : ''}`}
-                          style={{ borderColor: `${accent}33` }}
+                    <span
+                      className={`size-1.5 rounded-full ${reducedMotion ? '' : 'animate-pulse'}`}
+                      style={{ background: accent, boxShadow: `0 0 8px ${accent}` }}
+                    />
+                    Observation Log
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    onClick={onClose}
+                    className="pointer-events-auto rounded-full border border-white/10 bg-black/40 p-1.5 text-white/70 transition-colors hover:text-white"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+
+                {/* Scroll body */}
+                <div ref={scrollRef} className="no-scrollbar flex-1 overflow-y-auto">
+                  {/* Hero */}
+                  {heroImage ? (
+                    <div className="relative h-56 w-full sm:h-64 md:h-72">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={heroImage}
+                        alt={node.title}
+                        className="size-full object-cover"
+                        loading="lazy"
+                      />
+                      <div
+                        className="pointer-events-none absolute inset-0 opacity-25 mix-blend-overlay"
+                        style={{
+                          backgroundImage:
+                            'repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 1px, transparent 1px, transparent 3px)',
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b13] via-[#0b0b13]/35 to-transparent" />
+                      <div
+                        className="pointer-events-none absolute inset-0"
+                        style={{ boxShadow: `inset 0 -70px 90px -40px ${accent}66` }}
+                      />
+                      <span className="absolute right-3 top-12 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/55">
+                        ▣ Spectral Plate
+                      </span>
+                      <div className="absolute inset-x-0 bottom-0 px-6 pb-5 md:px-8">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ background: accent, boxShadow: `0 0 10px ${accent}` }}
+                          />
+                          <span
+                            className="text-[10px] font-black uppercase tracking-[0.3em]"
+                            style={{ color: accent }}
+                          >
+                            {CATEGORY_LABEL[node.category]}
+                          </span>
+                          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+                            · {chart.name}
+                          </span>
+                        </div>
+                        <h3 className="mt-2 text-2xl font-black leading-tight tracking-tight text-white md:text-3xl">
+                          {node.title}
+                        </h3>
+                        {node.subtitle && (
+                          <p className="mt-1.5 font-mono text-xs font-bold uppercase tracking-[0.15em] text-white/55">
+                            {node.subtitle}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="px-6 pt-12 md:px-8">
+                      <ChartBanner chart={chart} accent={accent} reducedMotion={reducedMotion} />
+                      <div className="mt-5 flex items-center gap-2">
+                        <span
+                          className="size-2 rounded-full"
+                          style={{ background: accent, boxShadow: `0 0 10px ${accent}` }}
+                        />
+                        <span
+                          className="text-[10px] font-black uppercase tracking-[0.3em]"
+                          style={{ color: accent }}
                         >
-                          <div
-                            className="pointer-events-none absolute -top-8 -right-8 size-16 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-40"
+                          {CATEGORY_LABEL[node.category]}
+                        </span>
+                      </div>
+                      <h3 className="mt-2 text-2xl font-black leading-tight tracking-tight text-white md:text-3xl">
+                        {node.title}
+                      </h3>
+                      {node.subtitle && (
+                        <p className="mt-2 font-mono text-xs font-bold uppercase tracking-[0.15em] text-white/50">
+                          {node.subtitle}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Content column */}
+                  <div className="space-y-7 px-6 py-7 md:px-8">
+                    {node.role && (
+                      <div
+                        className="flex items-center gap-2.5 rounded-lg border-l-2 bg-white/[0.03] px-3 py-2"
+                        style={{ borderColor: accent }}
+                      >
+                        <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-white/35">
+                          My role
+                        </span>
+                        <span className="text-xs font-bold text-white/85">{node.role}</span>
+                      </div>
+                    )}
+
+                    {node.body && (
+                      <p className="text-sm leading-relaxed text-white/70">
+                        <span className="mr-1 font-mono" style={{ color: accent }}>
+                          ›
+                        </span>
+                        {typed}
+                        {!done && (
+                          <span
+                            className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse"
                             style={{ background: accent }}
                           />
-                          <div className="relative flex items-center gap-3">
-                            <svg
-                              viewBox="0 0 24 24"
-                              className="size-3.5 shrink-0 fill-current transition-colors group-hover:opacity-100"
-                              style={{ color: item.link ? accent : 'rgba(255,255,255,0.2)' }}
-                              aria-hidden="true"
+                        )}
+                      </p>
+                    )}
+
+                    {node.bullets && (
+                      <ul className="space-y-2.5 border-t border-white/5 pt-5">
+                        {node.bullets.map((bullet, index) => (
+                          <li key={index} className="flex items-start gap-3 text-xs text-white/70">
+                            <span
+                              className="mt-px font-mono text-[10px] font-bold tabular-nums"
+                              style={{ color: accent }}
                             >
-                              <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.029 4.524 4.524s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.606 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.497 1.009 2.455-.397.957-1.497 1.41-2.455 1.012zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.663 0-3.015 1.353-3.015 3.015s1.352 3.015 3.015 3.015c1.662 0 3.015-1.353 3.015-3.015zm-5.273.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z" />
-                            </svg>
-                            <div className="min-w-0 flex-1">
-                              <h4 className="truncate text-xs font-bold text-white/90">{item.name}</h4>
-                              <p className="mt-0.5 text-[11px] leading-relaxed text-white/50">{item.note}</p>
+                              {String(index + 1).padStart(2, '0')}
+                            </span>
+                            <span className="leading-relaxed">{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {node.sections && node.sections.length > 0 && (
+                      <div className="flex flex-col gap-7 border-t border-white/5 pt-6">
+                        {node.sections.map((section, index) => (
+                          <div key={index}>
+                            <div className="mb-2.5 flex items-center gap-2.5">
+                              <span
+                                className="font-mono text-[10px] font-black tracking-[0.3em]"
+                                style={{ color: accent }}
+                              >
+                                {section.number}
+                              </span>
+                              <span
+                                className="text-xs font-bold uppercase tracking-[0.2em]"
+                                style={{ color: accent }}
+                              >
+                                {section.title}
+                              </span>
                             </div>
+                            <p className="mb-1.5 text-sm font-bold leading-snug text-white">
+                              {section.hook}
+                            </p>
+                            <p className="text-xs leading-relaxed text-white/60">{section.subtitle}</p>
                           </div>
-                        </Tag>
-                      );
-                    })}
+                        ))}
+                      </div>
+                    )}
+
+                    {node.personal?.passion && (
+                      <div className="flex flex-col gap-7 border-t border-white/5 pt-6">
+                        <div>
+                          {blockLabel(`✦ ${node.personal.labels?.passion ?? 'Passion'}`)}
+                          <p className="text-sm font-bold italic leading-relaxed text-white/85">
+                            &ldquo;
+                            {donePassion ? renderMetrics(typedPassion, accent) : typedPassion}
+                            {!donePassion ? (
+                              <span
+                                className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic"
+                                style={{ background: accent }}
+                              />
+                            ) : (
+                              '”'
+                            )}
+                          </p>
+                        </div>
+
+                        {node.personal.mindset && node.personal.mindset.length > 0 && (
+                          <div>
+                            {blockLabel(`✦ ${node.personal.labels?.mindset ?? 'Mindset'}`)}
+                            <ul className="space-y-2">
+                              {node.personal.mindset.map((line, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
+                                  <span
+                                    className="shrink-0 font-mono text-[10px] font-black tabular-nums"
+                                    style={{ color: accent }}
+                                  >
+                                    {String(i + 1).padStart(2, '0')}
+                                  </span>
+                                  <span className="leading-relaxed">{renderMetrics(line, accent)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {node.personal.direction && node.personal.direction.length > 0 && (
+                          <div>
+                            {blockLabel(`✦ ${node.personal.labels?.direction ?? 'Direction'}`)}
+                            <ul className="space-y-2">
+                              {node.personal.direction.map((line, i) => (
+                                <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
+                                  <span
+                                    className="shrink-0 font-mono text-[10px] font-black tabular-nums"
+                                    style={{ color: accent }}
+                                  >
+                                    {String(i + 1).padStart(2, '0')}
+                                  </span>
+                                  <span className="font-bold leading-relaxed text-white/85">
+                                    {renderMetrics(line, accent)}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {node.meta && (
+                      <div className="grid grid-cols-2 gap-3 border-t border-white/5 pt-6 sm:grid-cols-3">
+                        {node.meta.map(item => (
+                          <div
+                            key={item.label}
+                            className="relative rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                          >
+                            <span className="absolute left-0 top-3 h-4 w-px" style={{ background: accent }} />
+                            <p className="pl-2 font-mono text-[9px] font-black uppercase tracking-[0.2em] text-white/35">
+                              {item.label}
+                            </p>
+                            <p className="mt-1 pl-2 text-sm font-bold text-white/90">{item.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {node.links && node.links.length > 0 && (
+                      <div className="flex flex-wrap gap-2.5 border-t border-white/5 pt-6">
+                        {node.links.map((link, index) => (
+                          <a
+                            key={link.href}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-transform hover:scale-105 ${
+                              index === 0 ? 'text-black' : 'border border-white/15 bg-white/5 text-white/80'
+                            }`}
+                            style={index === 0 ? { background: accent } : undefined}
+                          >
+                            {link.label}
+                            <ExternalLink className="size-3.5" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
-              {/* ── /Panel · Inspirations ────────────────────────────────── */}
 
-              {/* ── Panel · Details (readouts + links) ─────────────────────
-                  Studio links live in the identity card, so they're excluded here. */}
-              {(node.meta || (node.category !== 'studio' && node.links && node.links.length > 0)) && (
-                <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
-              {node.meta && (
-                <div className="grid grid-cols-2 gap-3">
-                  {node.meta.map(item => (
-                    <div
-                      key={item.label}
-                      className="relative rounded-xl border border-white/10 bg-white/[0.03] p-3"
-                    >
+                {/* Footer hint */}
+                <div className="flex shrink-0 items-center justify-between border-t border-white/10 px-5 py-2.5 font-mono text-[10px] font-medium uppercase tracking-wider text-white/30">
+                  <span style={{ color: `${accent}cc` }}>{chart.name}</span>
+                  {(onPrev || onNext) && <span>◀ ▶ to browse</span>}
+                </div>
+              </>
+            ) : (
+              /* ══ Default layout — horizontal reading rail ════════════════ */
+              <>
+                {/* Header bar */}
+                <div className="relative flex items-center justify-between border-b border-white/10 px-5 py-3">
+                  <div
+                    className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.28em]"
+                    style={{ color: accent }}
+                  >
+                    <span
+                      className={`size-1.5 rounded-full ${reducedMotion ? '' : 'animate-pulse'}`}
+                      style={{ background: accent, boxShadow: `0 0 8px ${accent}` }}
+                    />
+                    Observation Log
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Close"
+                    onClick={onClose}
+                    className="rounded-full border border-white/10 bg-black/40 p-1.5 text-white/70 transition-colors hover:text-white"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+
+                {/* Horizontal reading rail — panels side-by-side, wheel scrolls X. */}
+                <div
+                  ref={railRef}
+                  onWheel={handleWheel}
+                  className="no-scrollbar relative flex min-h-[280px] max-h-[60vh] overflow-x-auto overflow-y-hidden xl:max-h-[680px] 2xl:max-h-[820px]"
+                >
+                  {/* Panel · Identity */}
+                  <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto px-6 py-6">
+                    <ChartBanner chart={chart} accent={accent} reducedMotion={reducedMotion} />
+
+                    <div className="mt-5 flex items-center gap-2">
                       <span
-                        className="absolute left-0 top-3 h-4 w-px"
-                        style={{ background: accent }}
+                        className="size-2 rounded-full"
+                        style={{ background: accent, boxShadow: `0 0 10px ${accent}` }}
                       />
-                      <p className="pl-2 font-mono text-[9px] font-black uppercase tracking-[0.2em] text-white/35">
-                        {item.label}
-                      </p>
-                      <p className="mt-1 pl-2 text-sm font-bold text-white/90">{item.value}</p>
+                      <span
+                        className="text-[10px] font-black uppercase tracking-[0.3em]"
+                        style={{ color: accent }}
+                      >
+                        {CATEGORY_LABEL[node.category]}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
 
-              {node.category !== 'studio' && node.links && node.links.length > 0 && (
-                <div className="mt-6 flex flex-wrap gap-2.5">
-                  {node.links.map((link, index) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-transform hover:scale-105 ${
-                        index === 0
-                          ? 'text-black'
-                          : 'border border-white/15 bg-white/5 text-white/80'
-                      }`}
-                      style={index === 0 ? { background: accent } : undefined}
-                    >
-                      {link.label}
-                      <ExternalLink className="size-3.5" />
-                    </a>
-                  ))}
-                </div>
-              )}
-                </div>
-              )}
-              {/* ── /Panel · Details ─────────────────────────────────────── */}
-            </div>
-            {/* ── /Horizontal reading rail ─────────────────────────────────── */}
+                    <h3 className="mt-2 text-2xl font-black leading-tight tracking-tight text-white md:text-3xl">
+                      {node.title}
+                    </h3>
+                    {node.subtitle && (
+                      <p className="mt-2 font-mono text-xs font-bold uppercase tracking-[0.15em] text-white/50">
+                        {node.subtitle}
+                      </p>
+                    )}
 
-            {/* ── Footer hint ──────────────────────────────────────────────── */}
-            <div className="flex items-center justify-between border-t border-white/10 px-5 py-2.5 font-mono text-[10px] font-medium uppercase tracking-wider text-white/30">
-              <span style={{ color: `${accent}cc` }}>scroll → to read entry</span>
-              {(onPrev || onNext) && <span>◀ ▶ · {chart.name}</span>}
-            </div>
+                    {node.role && (
+                      <div
+                        className="mt-4 flex items-center gap-2.5 rounded-lg border-l-2 bg-white/[0.03] px-3 py-2"
+                        style={{ borderColor: accent }}
+                      >
+                        <span className="font-mono text-[9px] font-black uppercase tracking-[0.2em] text-white/35">
+                          My role
+                        </span>
+                        <span className="text-xs font-bold text-white/85">{node.role}</span>
+                      </div>
+                    )}
+
+                    {node.category === 'studio' && node.links && node.links.length > 0 && (
+                      <div className="mt-5 flex flex-col gap-2">
+                        {node.links.map(link => (
+                          <a
+                            key={link.href}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group relative inline-flex items-center gap-3 overflow-hidden rounded-lg border px-4 py-3 text-xs font-bold transition-all duration-300 hover:scale-[1.02]"
+                            style={{
+                              borderColor: `${accent}55`,
+                              background: `linear-gradient(135deg, ${accent}18 0%, rgba(255,255,255,0.02) 100%)`,
+                              color: accent,
+                              boxShadow: `0 0 28px -12px ${accent}`,
+                            }}
+                          >
+                            <div
+                              className="pointer-events-none absolute inset-0 -translate-x-full transition-transform duration-700 group-hover:translate-x-full"
+                              style={{ background: `linear-gradient(90deg, transparent, ${accent}25, transparent)` }}
+                            />
+                            <div
+                              className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                              style={{ background: `linear-gradient(90deg, transparent, ${accent}88, transparent)` }}
+                            />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={
+                                link.icon ??
+                                `https://www.google.com/s2/favicons?domain=${new URL(link.href).hostname}&sz=64`
+                              }
+                              alt=""
+                              aria-hidden="true"
+                              className={
+                                link.icon
+                                  ? 'relative h-4 w-auto max-w-[72px] shrink-0 object-contain'
+                                  : 'relative size-4 shrink-0 rounded-sm bg-white/90 object-contain p-px'
+                              }
+                              loading="lazy"
+                            />
+                            <span className="relative flex-1 tracking-wide">{link.label}</span>
+                            <ExternalLink className="relative size-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    {node.category === 'education' && node.image && (
+                      <button
+                        type="button"
+                        onClick={() => setLightboxSrc(node.image!)}
+                        className="group relative mt-5 w-full cursor-zoom-in rounded-lg border bg-black/40 p-3 transition-colors duration-300"
+                        style={{ borderColor: `${accent}30` }}
+                      >
+                        {(['left-1.5 top-1.5 border-l border-t', 'right-1.5 top-1.5 border-r border-t', 'left-1.5 bottom-1.5 border-l border-b', 'right-1.5 bottom-1.5 border-r border-b'] as const).map((c, i) => (
+                          <span
+                            key={i}
+                            className={`pointer-events-none absolute size-2.5 opacity-50 transition-opacity duration-300 group-hover:opacity-100 ${c}`}
+                            style={{ borderColor: accent }}
+                          />
+                        ))}
+                        <div
+                          className="pointer-events-none absolute inset-0 rounded-lg opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                          style={{ boxShadow: `inset 0 0 24px -8px ${accent}33` }}
+                        />
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={node.image}
+                          alt={node.title}
+                          className="relative mx-auto h-20 w-auto max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                          loading="lazy"
+                        />
+                      </button>
+                    )}
+                  </div>
+                  {/* /Panel · Identity */}
+
+                  {/* Panel · Spectral plate (hero image) */}
+                  {node.image && node.category !== 'education' && (
+                    <div className="w-[300px] shrink-0 border-l border-white/10 px-6 py-6">
+                      <div className="relative h-full overflow-hidden rounded-lg border border-white/10">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={node.image}
+                          alt={node.title}
+                          className="size-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                        <div
+                          className="pointer-events-none absolute inset-0 opacity-30 mix-blend-overlay"
+                          style={{
+                            backgroundImage:
+                              'repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(255,255,255,0.12) 1px, transparent 1px, transparent 3px)',
+                          }}
+                        />
+                        <div
+                          className="pointer-events-none absolute inset-0"
+                          style={{ boxShadow: `inset 0 -40px 60px -20px ${accent}55` }}
+                        />
+                        <span className="absolute left-2 top-2 font-mono text-[8px] font-bold uppercase tracking-[0.25em] text-white/55">
+                          ▣ Spectral Plate
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Panel · Log (body + bullets) */}
+                  {(!!node.body || !!node.bullets) && (
+                    <div className="flex w-[380px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                      {node.body && (
+                        <p className="min-h-[3.5rem] text-sm leading-relaxed text-white/70">
+                          <span className="mr-1 font-mono" style={{ color: accent }}>
+                            ›
+                          </span>
+                          {typed}
+                          {!done && (
+                            <span
+                              className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse"
+                              style={{ background: accent }}
+                            />
+                          )}
+                        </p>
+                      )}
+
+                      {node.bullets && (
+                        <ul className="mt-5 space-y-2.5 border-t border-white/5 pt-5">
+                          {node.bullets.map((bullet, index) => (
+                            <li key={index} className="flex items-start gap-3 text-xs text-white/70">
+                              <span
+                                className="mt-px font-mono text-[10px] font-bold tabular-nums"
+                                style={{ color: accent }}
+                              >
+                                {String(index + 1).padStart(2, '0')}
+                              </span>
+                              <span className="leading-relaxed">{bullet}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Panel · Narrative (sections) */}
+                  {node.sections && node.sections.length > 0 && (
+                    <div className="flex w-[360px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                      <div className="flex flex-col gap-7">
+                        {node.sections.map((section, index) => (
+                          <div key={index}>
+                            <div className="mb-2.5 flex items-center gap-2.5">
+                              <span
+                                className="font-mono text-[10px] font-black tracking-[0.3em]"
+                                style={{ color: accent }}
+                              >
+                                {section.number}
+                              </span>
+                              <span
+                                className="text-xs font-bold uppercase tracking-[0.2em]"
+                                style={{ color: accent }}
+                              >
+                                {section.title}
+                              </span>
+                            </div>
+                            <p className="mb-1.5 text-sm font-bold leading-snug text-white">
+                              {section.hook}
+                            </p>
+                            <p className="text-xs leading-relaxed text-white/60">{section.subtitle}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Panel · Personal (Passion + Mindset + Direction) */}
+                  {node.personal?.passion && (
+                    <div className="flex min-w-[380px] flex-1 flex-col gap-7 overflow-y-auto border-l border-white/10 px-6 py-6">
+                      <div>
+                        {blockLabel(`✦ ${node.personal.labels?.passion ?? 'Passion'}`)}
+                        <p className="text-sm font-bold italic leading-relaxed text-white/85">
+                          &ldquo;
+                          {donePassion ? renderMetrics(typedPassion, accent) : typedPassion}
+                          {!donePassion ? (
+                            <span
+                              className="ml-0.5 inline-block h-3.5 w-1.5 translate-y-0.5 animate-pulse not-italic"
+                              style={{ background: accent }}
+                            />
+                          ) : (
+                            '”'
+                          )}
+                        </p>
+                      </div>
+
+                      {node.personal.mindset && node.personal.mindset.length > 0 && (
+                        <div>
+                          {blockLabel(`✦ ${node.personal.labels?.mindset ?? 'Mindset'}`)}
+                          <ul className="space-y-2">
+                            {node.personal.mindset.map((line, i) => (
+                              <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
+                                <span
+                                  className="shrink-0 font-mono text-[10px] font-black tabular-nums"
+                                  style={{ color: accent }}
+                                >
+                                  {String(i + 1).padStart(2, '0')}
+                                </span>
+                                <span className="leading-relaxed">{renderMetrics(line, accent)}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {node.personal.direction && node.personal.direction.length > 0 && (
+                        <div>
+                          {blockLabel(`✦ ${node.personal.labels?.direction ?? 'Direction'}`)}
+                          <ul className="space-y-2">
+                            {node.personal.direction.map((line, i) => (
+                              <li key={i} className="flex items-start gap-2.5 text-xs text-white/70">
+                                <span
+                                  className="shrink-0 font-mono text-[10px] font-black tabular-nums"
+                                  style={{ color: accent }}
+                                >
+                                  {String(i + 1).padStart(2, '0')}
+                                </span>
+                                <span className="font-bold leading-relaxed text-white/85">
+                                  {renderMetrics(line, accent)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Panel · Inspirations */}
+                  {node.personal?.inspirations && node.personal.inspirations.length > 0 && (
+                    <div className="flex w-[360px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                      {blockLabel('✦ Inspirations')}
+                      <div className="flex flex-col gap-2.5">
+                        {node.personal.inspirations.map((item, i) => {
+                          const Tag = item.link ? 'a' : 'div';
+                          const linkProps = item.link
+                            ? { href: item.link, target: '_blank', rel: 'noopener noreferrer' }
+                            : {};
+                          return (
+                            <Tag
+                              key={i}
+                              {...linkProps}
+                              className={`group relative overflow-hidden rounded-lg border bg-white/[0.02] px-3 py-2.5 transition-all hover:bg-white/[0.05] ${item.link ? 'cursor-pointer' : ''}`}
+                              style={{ borderColor: `${accent}33` }}
+                            >
+                              <div
+                                className="pointer-events-none absolute -right-8 -top-8 size-16 rounded-full opacity-0 blur-2xl transition-opacity group-hover:opacity-40"
+                                style={{ background: accent }}
+                              />
+                              <div className="relative flex items-center gap-3">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  className="size-3.5 shrink-0 fill-current transition-colors group-hover:opacity-100"
+                                  style={{ color: item.link ? accent : 'rgba(255,255,255,0.2)' }}
+                                  aria-hidden="true"
+                                >
+                                  <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.029 4.524 4.524s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.606 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.497 1.009 2.455-.397.957-1.497 1.41-2.455 1.012zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.663 0-3.015 1.353-3.015 3.015s1.352 3.015 3.015 3.015c1.662 0 3.015-1.353 3.015-3.015zm-5.273.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z" />
+                                </svg>
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="truncate text-xs font-bold text-white/90">{item.name}</h4>
+                                  <p className="mt-0.5 text-[11px] leading-relaxed text-white/50">{item.note}</p>
+                                </div>
+                              </div>
+                            </Tag>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Panel · Details (readouts + links) */}
+                  {(node.meta || (node.category !== 'studio' && node.links && node.links.length > 0)) && (
+                    <div className="flex w-[320px] shrink-0 flex-col overflow-y-auto border-l border-white/10 px-6 py-6">
+                      {node.meta && (
+                        <div className="grid grid-cols-2 gap-3">
+                          {node.meta.map(item => (
+                            <div
+                              key={item.label}
+                              className="relative rounded-xl border border-white/10 bg-white/[0.03] p-3"
+                            >
+                              <span className="absolute left-0 top-3 h-4 w-px" style={{ background: accent }} />
+                              <p className="pl-2 font-mono text-[9px] font-black uppercase tracking-[0.2em] text-white/35">
+                                {item.label}
+                              </p>
+                              <p className="mt-1 pl-2 text-sm font-bold text-white/90">{item.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {node.category !== 'studio' && node.links && node.links.length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-2.5">
+                          {node.links.map((link, index) => (
+                            <a
+                              key={link.href}
+                              href={link.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold transition-transform hover:scale-105 ${
+                                index === 0 ? 'text-black' : 'border border-white/15 bg-white/5 text-white/80'
+                              }`}
+                              style={index === 0 ? { background: accent } : undefined}
+                            >
+                              {link.label}
+                              <ExternalLink className="size-3.5" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {/* /Horizontal reading rail */}
+
+                {/* Footer hint */}
+                <div className="flex items-center justify-between border-t border-white/10 px-5 py-2.5 font-mono text-[10px] font-medium uppercase tracking-wider text-white/30">
+                  <span style={{ color: `${accent}cc` }}>scroll → to read entry</span>
+                  {(onPrev || onNext) && <span>◀ ▶ · {chart.name}</span>}
+                </div>
+              </>
+            )}
           </motion.div>
         </motion.div>
       )}

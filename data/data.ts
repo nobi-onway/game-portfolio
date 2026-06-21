@@ -110,7 +110,7 @@ export const PROJECT_GAMES: ProjectGameType[] = [
       ]
     },
     links: {
-      store: 'https://play.google.com/store/apps/details?id=com.wolffun.thetanimmortal&hl=en'
+      store: 'https://play.google.com/store/apps/details?id=com.legendarylabs.tile.match.travel.explorer.puzzle.game.relax&hl=en'
     }
   },
   {

@@ -2,7 +2,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, Download, Orbit } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CONSTELLATIONS, CV_HREF, SKY_WIDTH_REM, STAR_NODES } from '@/data/journey-data';
+import { CONSTELLATIONS, CV_HREF, SKY_HEIGHT_RATIO, SKY_WIDTH_REM, STAR_NODES } from '@/data/journey-data';
 import CodexView from './CodexView';
 import CosmicCanvas from './CosmicCanvas';
 import SocialLinks from './SocialLinks';
@@ -371,8 +371,26 @@ export default function ConstellationSky() {
             </div>
           </div>
 
-          {/* Constellation layer (stable) */}
-          <div className="absolute inset-0">
+          {/* Constellation layer — aspect-locked & vertically centred.
+              Stars/lines position with `left:x%` (of the wide canvas) but
+              `top:y%`, so the shape inherits whatever pixel aspect the box has.
+              The height is pinned to the canvas WIDTH × SKY_HEIGHT_RATIO so the
+              box keeps a fixed aspect on every screen — never the viewport's —
+              which is what the Arsenal pre-squeeze in journey-data assumes.
+              We deliberately do NOT cap it to the viewport height: a viewport
+              shorter than the ideal box would otherwise squash the ratio and
+              distort the logo. The stars live in the middle band, so the box is
+              vertically centred and any thin top/bottom overflow is clipped by
+              the section without touching them. */}
+          <div
+            className="absolute inset-x-0 top-1/2"
+            style={{
+              height: `calc(max(100vw, ${SKY_WIDTH_REM}rem) * ${SKY_HEIGHT_RATIO})`,
+              // Centre on the occupied star band (≈0.43 of the box, not 0.5) so the
+              // top (Arsenal) and bottom (Horizon) stars share the vertical margin.
+              transform: 'translateY(-43%)',
+            }}
+          >
             {/* Overview: auras, journey spine & chapter watermarks (behind the stars) */}
             <JourneyOverview zones={zones} reducedMotion={reducedMotion} />
 
